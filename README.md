@@ -1,3 +1,3 @@
 # Stratification-Optimization
-Code of optimize a stratified random sample design given parameters
+Code to optimize a stratified random sample given parameters
 -HL
