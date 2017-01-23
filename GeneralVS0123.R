@@ -402,7 +402,7 @@ for (z in 1:1){
 View(Results)
 
 #Fine Tune/Select Sample Sizes
-Results[,14]<-c(15,11,11,12,11,11,11,12)
+Results[,14]<-c(15,11,11,12,11,11,11)
 
 for (z in 1:1){
   Design[,8]<-0
