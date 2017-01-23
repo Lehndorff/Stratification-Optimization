@@ -366,9 +366,9 @@ for (z in 1:1){
     CountVect<-c(CountVect,Options[x,5:10])
     SDVectNew<-c()
     for (y in 1:StrataMax){
-      SumVect<-c(SumVect,sum(Dataopt$StratVar[Dataopt$Work==y]))
-      MeanVect<-c(MeanVect,mean(Dataopt$StratVar[Dataopt$Work==y]))
-      SDVectNew<-c(SDVectNew, sd(Dataopt$StratVar[Dataopt$Work==y]))
+      SumVect<-c(SumVect,sum(Dataopt[Dataopt$Work==y,StratVar]))
+      MeanVect<-c(MeanVect,mean(Dataopt[Dataopt$Work==y,StratVar]))
+      SDVectNew<-c(SDVectNew, sd(Dataopt[Dataopt$Work==y,StratVar]))
       if (y==StrataMax && is.na(SDVectNew[1])==1){
         SDVectNew[1]<-0
       }
