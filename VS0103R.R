@@ -35,8 +35,8 @@ subsetsx<-function(data=CEopt, size="SumKWH", strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-6
-Endusesn<-c(1)
+Strata<-5
+Endusesn<-c(1:4)
 ToleranceSet<-1.3
 Critical<-1.645
 Precision<-.1
