@@ -55,7 +55,7 @@ for (z in 1:1){
   system.time(
     for (h in Endusesn){
       Measure<-Enduses[h]
-      Dataopt <- Data[Data$PrimaryMeasure==Measure ,c(ID,StratVar)]
+      Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
       Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
       Length<-length(Dataopt$Percent)
       Pos<-c(1:Length)
@@ -359,7 +359,7 @@ for (z in 1:1){
   SDVect<-c()
   for (x in Selection){
     Measure <- Options[x,1]
-    Dataopt <- Data[Data$PrimaryMeasure==Measure ,c(ID,StratVar)]
+    Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt$Work <- c(rep(1, times = Options[x,5]),rep(2, times = Options[x,6]),rep(3, times = Options[x,7]),rep(4, times = Options[x,8]),rep(5, times = Options[x,9]),rep(6, times = Options[x,10]))
     StratVect<-c(StratVect,1:Options[x,2])
     EnduseVect<-c(EnduseVect,rep(Options[x,1],times=Options[x,2]))
