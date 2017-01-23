@@ -1,8 +1,8 @@
 library(dplyr)
 library(data.table)
-library(ggplot2)1
+library(ggplot2)
 library(devtools)
-library(evergreen)2
+library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
 StrataMax<-6
