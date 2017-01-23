@@ -37,8 +37,8 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-3
-Endusesn<-c(1:4)
+Strata<-4
+Endusesn<-c(1:3,5)
 ToleranceSet<-1.1
 Critical<-1.645
 Precision<-.1
@@ -338,7 +338,7 @@ for (z in 1:1){
 View(Options)
 
 #Sample Design inputs; Select rows from Options, Tune Critical Value and Precison
-Selection<-c(3,6,9,12,15,18,21)
+Selection<-c(4,7,12,15)
 Critical<-1.284
 Precision<-.2
 ###
