@@ -38,7 +38,7 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-3
-Endusesn<-c(1:7)
+Endusesn<-c(1:4)
 ToleranceSet<-1.1
 Critical<-1.645
 Precision<-.1
