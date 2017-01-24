@@ -8,6 +8,7 @@ Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
 StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
+print(Enduses)
 StratVar<-"SumKWH"
 ID<-"CProjectID"
 subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
