@@ -38,9 +38,9 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-4
+Strata<-5
 Endusesn<-c(1,3,4,6,7,9)
-ToleranceSet<-1.5
+ToleranceSet<-1.2
 Critical<-1.645
 Precision<-.1
 ###
@@ -49,6 +49,7 @@ for (z in 1:1){
   x<-proc.time()
   Tolerance<-ToleranceSet
   Tolerance2<-1-(Tolerance-1)
+  ToleranceReset<-ToleranceSet
   Options<-matrix(data=NA, nrow=(Strata*length(Endusesn)), ncol = (StrataMax+8))
   colnames(Options)<-c("Enduse","Strata","Iter", "BestCV","S1","S2","S3","S4","S5","S6", "Max", "Tolerance","InfSamp","FinSamp")
   Result<-0
@@ -56,6 +57,7 @@ for (z in 1:1){
   EstPossVec <- rep(0,times = length(Enduses))
   r<-proc.time()
   for (h in Endusesn){
+    ToleranceSet<-ToleranceReset
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
