@@ -38,8 +38,8 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-5
-Endusesn<-c(1,3,4,6,7,9)
+Strata<-4
+Endusesn<-c(1:3,5:7)
 ToleranceSet<-1.2
 Critical<-1.645
 Precision<-.1
@@ -191,9 +191,11 @@ for (z in 1:1){
     EstPossVec[h]<-EstPoss
   }
   q<-proc.time()
-  print(q-r)
-  print(sum(EstPossVec)/(q-r))
-  
+  print("Est. Time Remaining (High)", quote = FALSE)
+  print((q-r)*2.5)
+  print("Est. Time Remaining (Low)", quote = FALSE)
+  print((q-r)*2)
+
   f<-proc.time()
   for (h in Endusesn){
     ToleranceSet<-ToleranceReset
@@ -363,14 +365,12 @@ for (z in 1:1){
   g<-proc.time()
   k<-(g-f)
   print(k)
-  print(sum(EstPossVec)/k)
-  
   for (i in 1:length(Options[,1])) {
     Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
     Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
   }
   y<-proc.time()
-  print(y-x)
+  # print(y-x)
 }
 View(Options)
 
