@@ -185,6 +185,10 @@ for (z in 1:1){
           }
         }
       }
+      print("End-Use Proc Time (High):",quote = FALSE)
+      print(EstPoss/900)
+      print("End-Use Proc Time (Low):",quote = FALSE)
+      print(EstPoss/1500)
       Place<-1
       New<-matrix(data=99, nrow = EstPoss, ncol = (Length))
       Other<-matrix(data=99, nrow = EstPoss, ncol = 2)
