@@ -196,6 +196,7 @@ for (z in 1:1){
   
   f<-proc.time()
   for (h in Endusesn){
+    ToleranceSet<-ToleranceReset
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
@@ -218,6 +219,9 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       loc <- loc + 1
       Dataopt$Work<-Pos
+      if (Measure=="LED" && Strata >= 4){
+        ToleranceSet<-1.1
+      }
       Dataopt$Work[n:Length]<-n
       Tolerance<-ToleranceSet
       Tolerance2<-1-(Tolerance-1)
