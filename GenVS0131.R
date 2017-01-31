@@ -53,286 +53,302 @@ for (z in 1:1){
   colnames(Options)<-c("Enduse","Strata","Iter", "BestCV","S1","S2","S3","S4","S5","S6", "Max", "Tolerance","InfSamp","FinSamp")
   Result<-0
   loc<-0
-  system.time(
-    for (h in Endusesn){
-      Measure<-Enduses[h]
-      Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
-      Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
-      Length<-length(Dataopt$Percent)
-      Pos<-c(1:Length)
+  EstPossVec <- rep(0,times = length(Enduses))
+  for (h in Endusesn){
+    Measure<-Enduses[h]
+    Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
+    Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
+    Length<-length(Dataopt$Percent)
+    Pos<-c(1:Length)
+    Dataopt$Work<-Pos
+    EstPoss<-1
+    StrataSet<-Strata
+    if (Measure=="LED" && Strata>4){
+      StrataSet<-4
+    }
+    if(Measure=="OtherElectric" && Strata>4){
+      StrataSet<-4
+    }
+    while (Dataopt$Percent[1]*StrataSet >= Tolerance){
+      StrataSet<-StrataSet-1
+    }
+    for (n in 1:StrataSet){
       Dataopt$Work<-Pos
-      EstPoss<-1
-      StrataSet<-Strata
-      if (Measure=="LED" && Strata>4){
-        StrataSet<-4
+      Dataopt$Work[n:Length]<-n
+      if (Measure=="LED" && Strata >= 4){
+        ToleranceSet<-1.1
       }
-      if(Measure=="OtherElectric" && Strata>4){
-        StrataSet<-4
-      }
-      while (Dataopt$Percent[1]*StrataSet >= Tolerance){
-        StrataSet<-StrataSet-1
-      }
-      for (n in 1:StrataSet){
-        Dataopt$Work<-Pos
-        Dataopt$Work[n:Length]<-n
-        if (Measure=="LED" && Strata >= 4){
-          ToleranceSet<-1.1
+      Tolerance<-ToleranceSet
+      Tolerance2<-1-(Tolerance-1)
+      if (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+        while (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+          Tolerance<-Tolerance+.01
+          Tolerance2<-1-(Tolerance-1)
         }
-        Tolerance<-ToleranceSet
-        Tolerance2<-1-(Tolerance-1)
-        if (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
-          while (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+      }
+      if (n==2){
+        if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
+          while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
             Tolerance<-Tolerance+.01
             Tolerance2<-1-(Tolerance-1)
           }
         }
-        if (n==2){
-          if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
-            while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
-              Tolerance<-Tolerance+.01
-              Tolerance2<-1-(Tolerance-1)
-            }
-          }
+      }
+      for (a in 1:(Length-n+1)){
+        Dataopt$Work[a]<-1
+        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance)){
+          break
         }
-        for (a in 1:(Length-n+1)){
-          Dataopt$Work[a]<-1
-          if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance)){
+        if (sum(Dataopt$Percent[Dataopt$Work==1])<(1/n*Tolerance2)){
+          next
+        }
+        if (n>2){
+          Dataopt$Work[(a+2):Length]<-n
+        }
+        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
+          EstPoss<-EstPoss+1
+        }
+        if (sum(Dataopt$Work)==Length){
+          break
+        }
+        for (b in (a+1):(Length-n+2)){
+          if (n<=2){
             break
           }
-          if (sum(Dataopt$Percent[Dataopt$Work==1])<(1/n*Tolerance2)){
+          Dataopt$Work[b]<-2
+          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance)){
+            break
+          }
+          if (sum(Dataopt$Percent[Dataopt$Work==2])<(1/n*Tolerance2)){
             next
           }
-          if (n>2){
-            Dataopt$Work[(a+2):Length]<-n
+          if (n>3){
+            Dataopt$Work[(b+2):Length]<-n
           }
-          if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
+          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
             EstPoss<-EstPoss+1
           }
-          if (sum(Dataopt$Work)==Length){
-            break
-          }
-          for (b in (a+1):(Length-n+2)){
-            if (n<=2){
+          for (c in (b+1):(Length-n+3)){
+            if (n<=3){
               break
             }
-            Dataopt$Work[b]<-2
-            if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance)){
+            Dataopt$Work[c]<-3
+            if (sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance)){
               break
             }
-            if (sum(Dataopt$Percent[Dataopt$Work==2])<(1/n*Tolerance2)){
+            if (sum(Dataopt$Percent[Dataopt$Work==3])<(1/n*Tolerance2)){
               next
             }
-            if (n>3){
-              Dataopt$Work[(b+2):Length]<-n
+            if (n>4){
+              Dataopt$Work[(c+2):Length]<-n
             }
-            if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
+            if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
               EstPoss<-EstPoss+1
             }
-            for (c in (b+1):(Length-n+3)){
-              if (n<=3){
+            for(d in (c+1):(Length-n+4)){
+              if(n<=4){
                 break
               }
-              Dataopt$Work[c]<-3
-              if (sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance)){
+              Dataopt$Work[d]<-4
+              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance)){
                 break
               }
-              if (sum(Dataopt$Percent[Dataopt$Work==3])<(1/n*Tolerance2)){
+              if (sum(Dataopt$Percent[Dataopt$Work==4])<(1/n*Tolerance2)){
                 next
               }
-              if (n>4){
-                Dataopt$Work[(c+2):Length]<-n
+              if (n>5){
+                Dataopt$Work[(d+2):Length]<-n
               }
-              if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
+              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
                 EstPoss<-EstPoss+1
               }
-              for(d in (c+1):(Length-n+4)){
-                if(n<=4){
+              for(e in (d+1):(Length-n+5)){
+                if(n<=5){
                   break
                 }
-                Dataopt$Work[d]<-4
-                if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance)){
+                Dataopt$Work[e]<-5
+                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance)){
                   break
                 }
-                if (sum(Dataopt$Percent[Dataopt$Work==4])<(1/n*Tolerance2)){
+                if (sum(Dataopt$Percent[Dataopt$Work==5])<(1/n*Tolerance2)){
                   next
                 }
-                if (n>5){
-                  Dataopt$Work[(d+2):Length]<-n
+                if (n>6){
+                  Dataopt$Work[(e+2):Length]<-n
                 }
-                if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
+                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
                   EstPoss<-EstPoss+1
-                }
-                for(e in (d+1):(Length-n+5)){
-                  if(n<=5){
-                    break
-                  }
-                  Dataopt$Work[e]<-5
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance)){
-                    break
-                  }
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])<(1/n*Tolerance2)){
-                    next
-                  }
-                  if (n>6){
-                    Dataopt$Work[(e+2):Length]<-n
-                  }
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
-                    EstPoss<-EstPoss+1
-                  }
                 }
               }
             }
           }
         }
       }
-      print("End-Use Proc Time (High):",quote = FALSE)
-      print(EstPoss/900)
-      print("End-Use Proc Time (Low):",quote = FALSE)
-      print(EstPoss/1500)
-      Place<-1
-      New<-matrix(data=99, nrow = EstPoss, ncol = (Length))
-      Other<-matrix(data=99, nrow = EstPoss, ncol = 2)
-      for (n in 1:StrataSet){
-        loc <- loc + 1
-        Dataopt$Work<-Pos
-        Dataopt$Work[n:Length]<-n
-        Tolerance<-ToleranceSet
-        Tolerance2<-1-(Tolerance-1)
-        if (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
-          while (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+    }
+    EstPossVec[h]<-EstPoss
+  }
+  
+  for (h in Endusesn){
+    Measure<-Enduses[h]
+    Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
+    Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
+    Length<-length(Dataopt$Percent)
+    Pos<-c(1:Length)
+    Dataopt$Work<-Pos
+    StrataSet<-Strata
+    if (Measure=="LED" && Strata>4){
+      StrataSet<-4
+    }
+    if(Measure=="OtherElectric" && Strata>4){
+      StrataSet<-4
+    }
+    while (Dataopt$Percent[1]*StrataSet >= Tolerance){
+      StrataSet<-StrataSet-1
+    }
+    Place<-1
+    New<-matrix(data=99, nrow = EstPossVec[h], ncol = (Length))
+    Other<-matrix(data=99, nrow = EstPossVec[h], ncol = 2)
+    for (n in 1:StrataSet){
+      loc <- loc + 1
+      Dataopt$Work<-Pos
+      Dataopt$Work[n:Length]<-n
+      Tolerance<-ToleranceSet
+      Tolerance2<-1-(Tolerance-1)
+      if (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+        while (sum(Dataopt$Percent[1:2])>1/n*Tolerance && Dataopt$Percent[1]<1/n*Tolerance2){
+          Tolerance<-Tolerance+.01
+          Tolerance2<-1-(Tolerance-1)
+        }
+      }
+      if (n==2){
+        if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
+          while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
             Tolerance<-Tolerance+.01
             Tolerance2<-1-(Tolerance-1)
           }
         }
-        if (n==2){
-          if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
-            while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
-              Tolerance<-Tolerance+.01
-              Tolerance2<-1-(Tolerance-1)
-            }
-          }
+      }
+      Options[loc,12]<-Tolerance
+      for (a in 1:(Length-n+1)){
+        Dataopt$Work[a]<-1
+        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance)){
+          break
         }
-        Options[loc,12]<-Tolerance
-        for (a in 1:(Length-n+1)){
-          Dataopt$Work[a]<-1
-          if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance)){
+        if (sum(Dataopt$Percent[Dataopt$Work==1])<(1/n*Tolerance2)){
+          next
+        }
+        if (n>2){
+          Dataopt$Work[(a+2):Length]<-n
+        }
+        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
+          New[Place,]<-Dataopt$Work
+          Other[Place,2]<-subsetsx()
+          Other[Place,1]<-Place
+          Place<-Place+1
+        }
+        if (sum(Dataopt$Work)==Length){
+          break
+        }
+        for (b in (a+1):(Length-n+2)){
+          if (n<=2){
             break
           }
-          if (sum(Dataopt$Percent[Dataopt$Work==1])<(1/n*Tolerance2)){
+          Dataopt$Work[b]<-2
+          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance)){
+            break
+          }
+          if (sum(Dataopt$Percent[Dataopt$Work==2])<(1/n*Tolerance2)){
             next
           }
-          if (n>2){
-            Dataopt$Work[(a+2):Length]<-n
+          if (n>3){
+            Dataopt$Work[(b+2):Length]<-n
           }
-          if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
+          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
             New[Place,]<-Dataopt$Work
             Other[Place,2]<-subsetsx()
             Other[Place,1]<-Place
             Place<-Place+1
           }
-          if (sum(Dataopt$Work)==Length){
-            break
-          }
-          for (b in (a+1):(Length-n+2)){
-            if (n<=2){
+          for (c in (b+1):(Length-n+3)){
+            if (n<=3){
               break
             }
-            Dataopt$Work[b]<-2
-            if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance)){
+            Dataopt$Work[c]<-3
+            if (sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance)){
               break
             }
-            if (sum(Dataopt$Percent[Dataopt$Work==2])<(1/n*Tolerance2)){
+            if (sum(Dataopt$Percent[Dataopt$Work==3])<(1/n*Tolerance2)){
               next
             }
-            if (n>3){
-              Dataopt$Work[(b+2):Length]<-n
+            if (n>4){
+              Dataopt$Work[(c+2):Length]<-n
             }
-            if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
+            if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
               New[Place,]<-Dataopt$Work
               Other[Place,2]<-subsetsx()
               Other[Place,1]<-Place
               Place<-Place+1
             }
-            for (c in (b+1):(Length-n+3)){
-              if (n<=3){
+            for(d in (c+1):(Length-n+4)){
+              if(n<=4){
                 break
               }
-              Dataopt$Work[c]<-3
-              if (sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance)){
+              Dataopt$Work[d]<-4
+              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance)){
                 break
               }
-              if (sum(Dataopt$Percent[Dataopt$Work==3])<(1/n*Tolerance2)){
+              if (sum(Dataopt$Percent[Dataopt$Work==4])<(1/n*Tolerance2)){
                 next
               }
-              if (n>4){
-                Dataopt$Work[(c+2):Length]<-n
+              if (n>5){
+                Dataopt$Work[(d+2):Length]<-n
               }
-              if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
+              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
                 New[Place,]<-Dataopt$Work
                 Other[Place,2]<-subsetsx()
                 Other[Place,1]<-Place
                 Place<-Place+1
               }
-              for(d in (c+1):(Length-n+4)){
-                if(n<=4){
+              for(e in (d+1):(Length-n+5)){
+                if(n<=5){
                   break
                 }
-                Dataopt$Work[d]<-4
-                if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance)){
+                Dataopt$Work[e]<-5
+                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance)){
                   break
                 }
-                if (sum(Dataopt$Percent[Dataopt$Work==4])<(1/n*Tolerance2)){
+                if (sum(Dataopt$Percent[Dataopt$Work==5])<(1/n*Tolerance2)){
                   next
                 }
-                if (n>5){
-                  Dataopt$Work[(d+2):Length]<-n
+                if (n>6){
+                  Dataopt$Work[(e+2):Length]<-n
                 }
-                if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
+                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
                   New[Place,]<-Dataopt$Work
                   Other[Place,2]<-subsetsx()
                   Other[Place,1]<-Place
                   Place<-Place+1
                 }
-                for(e in (d+1):(Length-n+5)){
-                  if(n<=5){
-                    break
-                  }
-                  Dataopt$Work[e]<-5
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance)){
-                    break
-                  }
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])<(1/n*Tolerance2)){
-                    next
-                  }
-                  if (n>6){
-                    Dataopt$Work[(e+2):Length]<-n
-                  }
-                  if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
-                    New[Place,]<-Dataopt$Work
-                    Other[Place,2]<-subsetsx()
-                    Other[Place,1]<-Place
-                    Place<-Place+1
-                  }
-                }
               }
             }
           }
         }
-        Options[loc,11]<-Place-1
       }
-      Counts<-matrix(data=NA,nrow=length(New[,1]),ncol=StrataMax)
-      for (i in 1:(length(New[,1]))){
-        for (j in 1:StrataMax){
-          Counts[i,j]<-sum(New[i,(New[i,]==j)])/j
-        }
+      Options[loc,11]<-Place-1
+    }
+    Counts<-matrix(data=NA,nrow=length(New[,1]),ncol=StrataMax)
+    for (i in 1:(length(New[,1]))){
+      for (j in 1:StrataMax){
+        Counts[i,j]<-sum(New[i,(New[i,]==j)])/j
       }
-      CVsCount<-cbind(New,Other,Counts)
-      for (i in 1:StrataSet){
-        Result=Result+1
-        Options[Result,2:10]<-(CVsCount[(CVsCount[,(Length+2)]==(min(CVsCount[(CVsCount[,(Length)]==i),(Length+2)],na.rm = TRUE))),((Length):(Length+8))])
-        Options[Result,1]<-Measure
-      }
-    })
+    }
+    CVsCount<-cbind(New,Other,Counts)
+    for (i in 1:StrataSet){
+      Result=Result+1
+      Options[Result,2:10]<-(CVsCount[(CVsCount[,(Length+2)]==(min(CVsCount[(CVsCount[,(Length)]==i),(Length+2)],na.rm = TRUE))),((Length):(Length+8))])
+      Options[Result,1]<-Measure
+    }
+  }
   for (i in 1:length(Options[,1])) {
     Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
     Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
