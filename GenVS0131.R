@@ -54,6 +54,7 @@ for (z in 1:1){
   Result<-0
   loc<-0
   EstPossVec <- rep(0,times = length(Enduses))
+  r<-proc.time()
   for (h in Endusesn){
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
@@ -187,7 +188,11 @@ for (z in 1:1){
     }
     EstPossVec[h]<-EstPoss
   }
+  q<-proc.time()
+  print(q-r)
+  print(sum(EstPossVec)/(q-r))
   
+  f<-proc.time()
   for (h in Endusesn){
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
@@ -349,6 +354,11 @@ for (z in 1:1){
       Options[Result,1]<-Measure
     }
   }
+  g<-proc.time()
+  k<-(g-f)
+  print(k)
+  print(sum(EstPossVec)/k)
+  
   for (i in 1:length(Options[,1])) {
     Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
     Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
