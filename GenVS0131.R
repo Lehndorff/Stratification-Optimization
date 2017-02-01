@@ -46,7 +46,7 @@ Precision<-.1
 ###
 
 for (z in 1:1){
-  x<-proc.time()
+  # x<-proc.time()
   Tolerance<-ToleranceSet
   Tolerance2<-1-(Tolerance-1)
   ToleranceReset<-ToleranceSet
@@ -371,7 +371,7 @@ for (z in 1:1){
     Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
     Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
   }
-  y<-proc.time()
+  # y<-proc.time()
   # print(y-x)
 }
 View(Options)
