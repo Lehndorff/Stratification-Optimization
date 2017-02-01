@@ -9,7 +9,7 @@ StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
 print(Enduses)
-StratVar<-"CAccountNumber"
+StratVar<-"SumKWH"
 ID<-"CProjectID"
 subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
   str1<-data[[size]][data[[strata]]==1]
@@ -39,8 +39,8 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-4
-Endusesn<-c(1,4:5)
-ToleranceSet<-1.2
+Endusesn<-c(1,5)
+ToleranceSet<-1.7
 Critical<-1.284
 Precision<-.1
 ###
