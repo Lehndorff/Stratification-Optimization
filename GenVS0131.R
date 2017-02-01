@@ -192,11 +192,11 @@ for (z in 1:1){
     EstPossVec[h]<-EstPoss
   }
   q<-proc.time()
-  print("Est. Time Remaining (High)", quote = FALSE)
-  print((q-r)*2.5)
-  print("Est. Time Remaining (Low)", quote = FALSE)
-  print((q-r)*2)
-
+  print("Est. Time (s) Remaining (High)", quote = FALSE)
+  print(as.numeric((q-r)*2.5)[3])
+  print("Est. Time (s) Remaining (Low)", quote = FALSE)
+  print(as.numeric((q-r)*2)[3])
+  
   f<-proc.time()
   for (h in Endusesn){
     ToleranceSet<-ToleranceReset
