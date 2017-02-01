@@ -6,10 +6,10 @@ library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
 StrataMax<-6
-EndUseID<-Data$CountOfMeasures
+EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
 print(Enduses)
-StratVar<-"SumKWH"
+StratVar<-"CAccountNumber"
 ID<-"CProjectID"
 subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
   str1<-data[[size]][data[[strata]]==1]
