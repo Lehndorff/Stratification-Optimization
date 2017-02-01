@@ -60,6 +60,7 @@ for (z in 1:1){
     ToleranceSet<-ToleranceReset
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
+    Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
     Length<-length(Dataopt$Percent)
     Pos<-c(1:Length)
@@ -201,6 +202,7 @@ for (z in 1:1){
     ToleranceSet<-ToleranceReset
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
+    Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
     Length<-length(Dataopt$Percent)
     Pos<-c(1:Length)
