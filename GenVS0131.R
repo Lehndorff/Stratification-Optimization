@@ -89,7 +89,7 @@ for (z in 1:1){
           Tolerance2<-1-(Tolerance-1)
         }
       }
-      if (n==2){
+      if (n==2 && length(Dataopt$Work)>2){
         if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
           while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
             Tolerance<-Tolerance+.01
@@ -233,7 +233,7 @@ for (z in 1:1){
           Tolerance2<-1-(Tolerance-1)
         }
       }
-      if (n==2){
+      if (n==2 && length(Dataopt$Work)>2){
         if ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
           while ((sum(Dataopt$Percent[1:3])<1/n*Tolerance2) && (sum(Dataopt$Percent[1:4])>1/n*Tolerance)){
             Tolerance<-Tolerance+.01
