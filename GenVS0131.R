@@ -304,7 +304,7 @@ for (z in 1:1){
               Other[Place,1]<-Place
               Place<-Place+1
             }
-            for(d in (c+n-3):(Length-n+4)){
+            for(d in (c+1):(Length-n+4)){
               if(n<=4){
                 break
               }
