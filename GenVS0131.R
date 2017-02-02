@@ -78,7 +78,7 @@ for (z in 1:1){
         ToleranceSet<-1.1
       }
       if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
-        ToleranceSet<-1.02
+        ToleranceSet<-1.025
       }
       Tolerance<-ToleranceSet
       Tolerance2<-1-(Tolerance-1)
@@ -219,7 +219,7 @@ for (z in 1:1){
         ToleranceSet<-1.1
       }
       if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
-        ToleranceSet<-1.02
+        ToleranceSet<-1.025
       }
       Dataopt$Work[n:Length]<-n
       Tolerance<-ToleranceSet
