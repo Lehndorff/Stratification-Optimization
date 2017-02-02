@@ -6,7 +6,7 @@ library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
 StrataMax<-6
-EndUseID<-Data$CountOfMeasures
+EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
 print(Enduses)
 StratVar<-"SumKWH"
@@ -39,7 +39,7 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(1:5)
+Endusesn<-c(1:9)
 ToleranceSet<-1.3
 Critical<-1.284
 Precision<-.1
