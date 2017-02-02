@@ -67,10 +67,7 @@ for (z in 1:1){
     Dataopt$Work<-Pos
     EstPoss<-1
     StrataSet<-Strata
-    if (Measure=="LED" && Strata>4){
-      StrataSet<-4
-    }
-    if(Measure=="OtherElectric" && Strata>4){
+    if (Length>1000 && Strata>4){
       StrataSet<-4
     }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
@@ -79,7 +76,7 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
-      if (Measure=="LED" && Strata >= 4){
+      if (Length>750 && n >= 4 && ToleranceSet>1.1){
         ToleranceSet<-1.1
       }
       Tolerance<-ToleranceSet
@@ -208,10 +205,7 @@ for (z in 1:1){
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
     StrataSet<-Strata
-    if (Measure=="LED" && Strata>4){
-      StrataSet<-4
-    }
-    if(Measure=="OtherElectric" && Strata>4){
+    if (Length>1000 && Strata>4){
       StrataSet<-4
     }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
@@ -223,7 +217,7 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       loc <- loc + 1
       Dataopt$Work<-Pos
-      if (Measure=="LED" && Strata >= 4){
+      if (Length>750 && n >= 4 && ToleranceSet>1.1){
         ToleranceSet<-1.1
       }
       Dataopt$Work[n:Length]<-n
