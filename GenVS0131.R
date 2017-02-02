@@ -250,7 +250,7 @@ for (z in 1:1){
         if (n>2){
           Dataopt$Work[(a+n-1):Length]<-n
         }
-        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
+        if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2) && sum(New[Place-1,])!=sum(Dataopt$Work)){
           New[Place,]<-Dataopt$Work
           Other[Place,2]<-subsetsx()
           Other[Place,1]<-Place
@@ -273,7 +273,7 @@ for (z in 1:1){
           if (n>3){
             Dataopt$Work[(b+n-2):Length]<-n
           }
-          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
+          if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(New[Place-1,])!=sum(Dataopt$Work)){
             New[Place,]<-Dataopt$Work
             Other[Place,2]<-subsetsx()
             Other[Place,1]<-Place
@@ -293,7 +293,7 @@ for (z in 1:1){
             if (n>4){
               Dataopt$Work[(c+n-3):Length]<-n
             }
-            if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
+            if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(New[Place-1,])!=sum(Dataopt$Work)){
               New[Place,]<-Dataopt$Work
               Other[Place,2]<-subsetsx()
               Other[Place,1]<-Place
@@ -313,7 +313,7 @@ for (z in 1:1){
               if (n>5){
                 Dataopt$Work[(d+n-4):Length]<-n
               }
-              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
+              if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(New[Place-1,])!=sum(Dataopt$Work)){
                 New[Place,]<-Dataopt$Work
                 Other[Place,2]<-subsetsx()
                 Other[Place,1]<-Place
@@ -333,7 +333,7 @@ for (z in 1:1){
                 if (n>6){
                   Dataopt$Work[(e+n-5):Length]<-n
                 }
-                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
+                if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2) && sum(New[Place-1,])!=sum(Dataopt$Work)){
                   New[Place,]<-Dataopt$Work
                   Other[Place,2]<-subsetsx()
                   Other[Place,1]<-Place
