@@ -39,10 +39,11 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(1:3,5)
-ToleranceSet<-1.1
+Endusesn<-c(1:5)
+ToleranceSet<-1.3
 Critical<-1.284
 Precision<-.1
+Restrictions<-1
 ###
 
 for (z in 1:1){
@@ -67,7 +68,7 @@ for (z in 1:1){
     Dataopt$Work<-Pos
     EstPoss<-1
     StrataSet<-Strata
-    if (Length>1000 && Strata>4){
+    if (Length>1000 && Strata>4 && Restrictions==1){
       StrataSet<-4
     }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
@@ -76,7 +77,7 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
-      if (Length>750 && n >= 4 && ToleranceSet>1.1){
+      if (Length>750 && n >= 4 && ToleranceSet>1.1 && Restrictions == 1){
         ToleranceSet<-1.1
       }
       Tolerance<-ToleranceSet
@@ -205,7 +206,7 @@ for (z in 1:1){
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
     StrataSet<-Strata
-    if (Length>1000 && Strata>4){
+    if (Length>1000 && Strata>4 && Restrictions == 1){
       StrataSet<-4
     }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
@@ -217,7 +218,7 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       loc <- loc + 1
       Dataopt$Work<-Pos
-      if (Length>750 && n >= 4 && ToleranceSet>1.1){
+      if (Length>750 && n >= 4 && ToleranceSet>1.1 && Restrictions == 1){
         ToleranceSet<-1.1
       }
       Dataopt$Work[n:Length]<-n
