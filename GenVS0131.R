@@ -68,17 +68,17 @@ for (z in 1:1){
     Dataopt$Work<-Pos
     EstPoss<-1
     StrataSet<-Strata
-    if (Length>1000 && Strata>4 && Restrictions==1){
-      StrataSet<-4
-    }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
       StrataSet<-StrataSet-1
     }
     for (n in 1:StrataSet){
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
-      if (Length>750 && n >= 4 && ToleranceSet>1.1 && Restrictions == 1){
+      if (Length>750 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
         ToleranceSet<-1.1
+      }
+      if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
+        ToleranceSet<-1.02
       }
       Tolerance<-ToleranceSet
       Tolerance2<-1-(Tolerance-1)
@@ -206,9 +206,6 @@ for (z in 1:1){
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
     StrataSet<-Strata
-    if (Length>1000 && Strata>4 && Restrictions == 1){
-      StrataSet<-4
-    }
     while (Dataopt$Percent[1]*StrataSet >= Tolerance){
       StrataSet<-StrataSet-1
     }
@@ -218,8 +215,11 @@ for (z in 1:1){
     for (n in 1:StrataSet){
       loc <- loc + 1
       Dataopt$Work<-Pos
-      if (Length>750 && n >= 4 && ToleranceSet>1.1 && Restrictions == 1){
+      if (Length>750 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
         ToleranceSet<-1.1
+      }
+      if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
+        ToleranceSet<-1.02
       }
       Dataopt$Work[n:Length]<-n
       Tolerance<-ToleranceSet
