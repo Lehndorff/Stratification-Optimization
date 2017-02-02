@@ -107,7 +107,7 @@ for (z in 1:1){
           next
         }
         if (n>2){
-          Dataopt$Work[(a+2):Length]<-n
+          Dataopt$Work[(a+n-1):Length]<-n
         }
         if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
           EstPoss<-EstPoss+1
@@ -127,7 +127,7 @@ for (z in 1:1){
             next
           }
           if (n>3){
-            Dataopt$Work[(b+2):Length]<-n
+            Dataopt$Work[(b+n-2):Length]<-n
           }
           if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
             EstPoss<-EstPoss+1
@@ -144,7 +144,7 @@ for (z in 1:1){
               next
             }
             if (n>4){
-              Dataopt$Work[(c+2):Length]<-n
+              Dataopt$Work[(c+n-3):Length]<-n
             }
             if(sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2)){
               EstPoss<-EstPoss+1
@@ -161,7 +161,7 @@ for (z in 1:1){
                 next
               }
               if (n>5){
-                Dataopt$Work[(d+2):Length]<-n
+                Dataopt$Work[(d+n-4):Length]<-n
               }
               if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
                 EstPoss<-EstPoss+1
@@ -178,7 +178,7 @@ for (z in 1:1){
                   next
                 }
                 if (n>6){
-                  Dataopt$Work[(e+2):Length]<-n
+                  Dataopt$Work[(e+n-5):Length]<-n
                 }
                 if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
                   EstPoss<-EstPoss+1
@@ -253,7 +253,7 @@ for (z in 1:1){
           next
         }
         if (n>2){
-          Dataopt$Work[(a+2):Length]<-n
+          Dataopt$Work[(a+n-1):Length]<-n
         }
         if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance2)){
           New[Place,]<-Dataopt$Work
@@ -276,7 +276,7 @@ for (z in 1:1){
             next
           }
           if (n>3){
-            Dataopt$Work[(b+2):Length]<-n
+            Dataopt$Work[(b+n-2):Length]<-n
           }
           if (sum(Dataopt$Percent[Dataopt$Work==2])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==3])>(1/n*Tolerance2)){
             New[Place,]<-Dataopt$Work
@@ -304,7 +304,7 @@ for (z in 1:1){
               Other[Place,1]<-Place
               Place<-Place+1
             }
-            for(d in (c+1):(Length-n+4)){
+            for(d in (c+n-3):(Length-n+4)){
               if(n<=4){
                 break
               }
@@ -316,7 +316,7 @@ for (z in 1:1){
                 next
               }
               if (n>5){
-                Dataopt$Work[(d+2):Length]<-n
+                Dataopt$Work[(d+n-4):Length]<-n
               }
               if (sum(Dataopt$Percent[Dataopt$Work==4])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2)){
                 New[Place,]<-Dataopt$Work
@@ -336,7 +336,7 @@ for (z in 1:1){
                   next
                 }
                 if (n>6){
-                  Dataopt$Work[(e+2):Length]<-n
+                  Dataopt$Work[(e+n-5):Length]<-n
                 }
                 if (sum(Dataopt$Percent[Dataopt$Work==5])>(1/n*Tolerance2) && sum(Dataopt$Percent[Dataopt$Work==6])>(1/n*Tolerance2)){
                   New[Place,]<-Dataopt$Work
