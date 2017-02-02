@@ -75,10 +75,10 @@ for (z in 1:1){
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
       if (Length>750 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
-        ToleranceSet<-1.1
+        ToleranceSet<-1.08
       }
       if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
-        ToleranceSet<-1.025
+        ToleranceSet<-1.03
       }
       Tolerance<-ToleranceSet
       Tolerance2<-1-(Tolerance-1)
@@ -216,10 +216,10 @@ for (z in 1:1){
       loc <- loc + 1
       Dataopt$Work<-Pos
       if (Length>750 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
-        ToleranceSet<-1.1
+        ToleranceSet<-1.08
       }
       if (Length>750 && n > 4 && ToleranceSet>1.02 && Restrictions == 1){
-        ToleranceSet<-1.025
+        ToleranceSet<-1.03
       }
       Dataopt$Work[n:Length]<-n
       Tolerance<-ToleranceSet
