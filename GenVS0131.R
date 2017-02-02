@@ -6,7 +6,7 @@ library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
 StrataMax<-6
-EndUseID<-Data$PrimaryMeasure
+EndUseID<-Data$CountOfMeasures
 Enduses<-unique(EndUseID)
 print(Enduses)
 StratVar<-"SumKWH"
