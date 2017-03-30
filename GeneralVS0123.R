@@ -4,7 +4,9 @@ library(ggplot2)
 library(devtools)
 library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
-Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
+Data <- read.csv("~/Desktop/DupeRemovedSampleFrame.csv", stringsAsFactors=FALSE)
+# Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
+
 StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
@@ -38,11 +40,11 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-5
-Endusesn<-c(1:5)
-ToleranceSet<-1.4
-Critical<-1.645
-Precision<-.1
+Strata<-4
+Endusesn<-c(1,3:7,9)
+ToleranceSet<-1.3
+Critical<-1.284
+Precision<-.2
 ###
 
 for (z in 1:1){
@@ -343,7 +345,7 @@ for (z in 1:1){
 View(Options)
 
 #Sample Design inputs; Select rows from Options, Tune Critical Value and Precison
-Selection<-c(4,7,12,15)
+Selection<-c(3,7,11,15,18,22,26)
 Critical<-1.284
 Precision<-.2
 ###
