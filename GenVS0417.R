@@ -39,8 +39,9 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(1:2)
-ToleranceSet<-1.01
+Endusesn<-c(9)
+MaxCert<-1
+ToleranceSet<-1.5
 Critical<-1.284
 Precision<-.1
 Restrictions<-1
@@ -48,12 +49,16 @@ Restrictions<-1
 
 for (z in 1:1){
   # x<-proc.time()
+  Certopts<-0:MaxCert
   Tolerance<-ToleranceSet
   Tolerance2<-1-(Tolerance-1)
   ToleranceReset<-ToleranceSet
   Options<-matrix(data=NA, nrow=(Strata*length(Endusesn)), ncol = (StrataMax+8))
+  CertOptions<-as.data.frame(matrix(data=NA, nrow=(Strata*length(Endusesn)), ncol = (StrataMax+8)))
   colnames(Options)<-c("Enduse","Strata","Iter", "BestCV","S1","S2","S3","S4","S5","S6", "Max", "Tolerance","InfSamp","FinSamp")
+  colnames(CertOptions)<-c("Enduse","Strata","Iter", "BestCV","S1","S2","S3","S4","S5","S6", "Max", "Tolerance","InfSamp","FinSamp")
   Result<-0
+  ResultCert<-0
   loc<-0
   EstPossVec <- rep(0,times = length(Enduses))
   r<-proc.time()
@@ -239,6 +244,7 @@ for (z in 1:1){
         }
       }
       Options[loc,12]<-Tolerance
+      CertOptions[loc,12]<-Tolerance
       for (a in 1:(Length-n+1)){
         Dataopt$Work[a]<-1
         if (sum(Dataopt$Percent[Dataopt$Work==1])>(1/n*Tolerance)){
@@ -345,6 +351,7 @@ for (z in 1:1){
         }
       }
       Options[loc,11]<-Place-1
+      CertOptions[loc,11]<-Place-1
     }
     Counts<-matrix(data=NA,nrow=length(New[,1]),ncol=StrataMax)
     for (i in 1:(length(New[,1]))){
@@ -358,27 +365,44 @@ for (z in 1:1){
       Options[Result,2:10]<-(CVsCount[(CVsCount[,(Length+2)]==(min(CVsCount[(CVsCount[,(Length)]==i),(Length+2)],na.rm = TRUE))),((Length):(Length+8))])
       Options[Result,1]<-Measure
     }
+    CVs2<-as.data.frame(CVsCount)
+    colnames(CVs2)[Length]<-"Last"
+    colnames(CVs2)[Length+2]<-"CV"
+    colnames(CVs2)[Length+3]<-"Count"
+    for (i in 1: StrataSet){
+      ResultCert<-ResultCert+1
+      if (!is.infinite(min(CVs2$CV[!is.na(match(CVs2$Count,Certopts)) & CVs2$Last==i]))){
+        CertOptions[ResultCert,2:10]<-CVs2[(CVs2$CV==min(CVs2$CV[!is.na(match(CVs2$Count,Certopts)) & CVs2$Last==i])),((Length):(Length+8))]
+      }
+      CertOptions[ResultCert,1]<-Measure
+    }
   }
   g<-proc.time()
   k<-(g-f)
   print(k)
   for (i in 1:length(Options[,1])) {
     Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
+    CertOptions[i,13]<-round((((Critical*as.numeric(CertOptions[i,4]))/Precision)^2),0)
     Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
+    CertOptions[i,14]<-ceiling(as.numeric(CertOptions[i,13])/(1+as.numeric(CertOptions[i,13])/sum(as.numeric(CertOptions[i,5:10]))))
   }
   # y<-proc.time()
   # print(y-x)
+  Options2<-rbind(CertOptions, Options)
+  Options2<-Options2[order(Options2$Enduse,Options2$Strata),]
+  Options2<-Options2[!is.na(Options2$Strata),]
+  Options2<-cbind(Options2, "Selection"=(1:length(Options2$Enduse)))
 }
-View(Options)
+View(Options2)
 
 #Sample Design inputs; Select rows from Options, Tune Critical Value and Precison
-Selection<-c(5,10,15,19,26,29,32)
+Selection<-c(5,10,14,19)
 Critical<-1.284
 Precision<-.2
 ###
 
 for (z in 1:1){
-  Results<-cbind(Options[Selection,], matrix(data=NA, nrow = length(Selection),ncol = 1))
+  Results<-cbind(Options2[Selection,1:14], matrix(data=NA, nrow = length(Selection),ncol = 1))
   colnames(Results)<-c(colnames(Results[,1:14]),"Sites/Strat")
   for (i in 1:length(Results[,1])) {
     Results[i,13]<-round((((Critical*as.numeric(Results[i,4]))/Precision)^2),0)
@@ -392,12 +416,12 @@ for (z in 1:1){
   EnduseVect<-c()
   SDVect<-c()
   for (x in Selection){
-    Measure <- Options[x,1]
+    Measure <- Options2[x,1]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
-    Dataopt$Work <- c(rep(1, times = Options[x,5]),rep(2, times = Options[x,6]),rep(3, times = Options[x,7]),rep(4, times = Options[x,8]),rep(5, times = Options[x,9]),rep(6, times = Options[x,10]))
-    StratVect<-c(StratVect,1:Options[x,2])
-    EnduseVect<-c(EnduseVect,rep(Options[x,1],times=Options[x,2]))
-    CountVect<-c(CountVect,Options[x,5:10])
+    Dataopt$Work <- c(rep(1, times = Options2[x,5]),rep(2, times = Options2[x,6]),rep(3, times = Options2[x,7]),rep(4, times = Options2[x,8]),rep(5, times = Options2[x,9]),rep(6, times = Options2[x,10]))
+    StratVect<-c(StratVect,1:Options2[x,2])
+    EnduseVect<-c(EnduseVect,rep(Options2[x,1],times=Options2[x,2]))
+    CountVect<-c(CountVect,Options2[x,5:10])
     SDVectNew<-c()
     for (y in 1:StrataMax){
       SumVect<-c(SumVect,sum(Dataopt[Dataopt$Work==y,StratVar]))
