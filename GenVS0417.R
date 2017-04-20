@@ -39,9 +39,10 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(9)
-MaxCert<-1
-ToleranceSet<-1.5
+Endusesn<-c(1)
+MaxCert<-0
+ToleranceSet<-1.05
+minTolerance<-1
 Critical<-1.284
 Precision<-.1
 Restrictions<-1
@@ -61,6 +62,7 @@ for (z in 1:1){
   ResultCert<-0
   loc<-0
   EstPossVec <- rep(0,times = length(Enduses))
+  minTol<-c(0,0)
   r<-proc.time()
   for (h in Endusesn){
     ToleranceSet<-ToleranceReset
@@ -68,6 +70,7 @@ for (z in 1:1){
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
+    Dataopt$Percentile<-cumsum(Dataopt$Percent)
     Length<-length(Dataopt$Percent)
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
@@ -77,6 +80,13 @@ for (z in 1:1){
       StrataSet<-StrataSet-1
     }
     for (n in 1:StrataSet){
+      if(minTolerance==1){
+        for (m in 1:n){
+          Dataopt$minTol<-abs(Dataopt$Percentile-m/n)
+          minTol[m]<-min(Dataopt$minTol)
+        }
+        ToleranceSet<-1+max(minTol)*n+.000001
+      }
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
       if (Length>500 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
@@ -207,6 +217,7 @@ for (z in 1:1){
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
     Dataopt$Percent <- Dataopt[,StratVar]/sum(Dataopt[,StratVar])
+    Dataopt$Percentile<-cumsum(Dataopt$Percent)
     Length<-length(Dataopt$Percent)
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
@@ -218,6 +229,13 @@ for (z in 1:1){
     New<-matrix(data=99, nrow = EstPossVec[h], ncol = (Length))
     Other<-matrix(data=99, nrow = EstPossVec[h], ncol = 2)
     for (n in 1:StrataSet){
+      if(minTolerance==1){
+        for (m in 1:n){
+          Dataopt$minTol<-abs(Dataopt$Percentile-m/n)
+          minTol[m]<-min(Dataopt$minTol)
+        }
+        ToleranceSet<-1+max(minTol)*n+.000001
+      }
       loc <- loc + 1
       Dataopt$Work<-Pos
       if (Length>500 && n == 4 && ToleranceSet>1.1 && Restrictions == 1){
