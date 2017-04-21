@@ -38,12 +38,12 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-5
-Endusesn<-c(1)
+Strata<-4
+Endusesn<-c(6)
 MaxCert<-0
-ToleranceSet<-1.05
-minTolerance<-1
-Critical<-1.284
+ToleranceSet<-1.7
+minTolerance<-0
+Critical<-2.25
 Precision<-.1
 Restrictions<-1
 ###
@@ -51,6 +51,9 @@ Restrictions<-1
 for (z in 1:1){
   # x<-proc.time()
   Certopts<-0:MaxCert
+  if(minTolerance==1){
+    ToleranceSet<-2
+  }
   Tolerance<-ToleranceSet
   Tolerance2<-1-(Tolerance-1)
   ToleranceReset<-ToleranceSet
