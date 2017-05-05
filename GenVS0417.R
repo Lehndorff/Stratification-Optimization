@@ -41,10 +41,10 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 Strata<-5
 Endusesn<-c(1:9)
 MaxCert<-0
-ToleranceSet<-1.015
+ToleranceSet<-2
 minTolerance<-1
-Critical<-2.25
-Precision<-.1
+Critical<-1.284
+Precision<-.2
 Restrictions<-1
 ###
 
@@ -79,7 +79,7 @@ for (z in 1:1){
     Dataopt$Work<-Pos
     EstPoss<-1
     StrataSet<-Strata
-    while (Dataopt$Percent[1]*StrataSet >= Tolerance){
+    while (Dataopt$Percent[1]*StrataSet >= Tolerance & minTolerance!=1){
       StrataSet<-StrataSet-1
     }
     for (n in 1:StrataSet){
@@ -225,7 +225,7 @@ for (z in 1:1){
     Pos<-c(1:Length)
     Dataopt$Work<-Pos
     StrataSet<-Strata
-    while (Dataopt$Percent[1]*StrataSet >= Tolerance){
+    while (Dataopt$Percent[1]*StrataSet >= Tolerance & minTolerance!=1){
       StrataSet<-StrataSet-1
     }
     Place<-1
