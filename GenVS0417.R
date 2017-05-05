@@ -39,7 +39,7 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(1:9)
+Endusesn<-c(5)
 MaxCert<-0
 ToleranceSet<-2
 minTolerance<-1
@@ -88,7 +88,7 @@ for (z in 1:1){
           Dataopt$minTol<-abs(Dataopt$Percentile-m/n)
           minTol[m]<-min(Dataopt$minTol)
         }
-        ToleranceSet<-1+(1.5*max(minTol))*n
+        ToleranceSet<-1+(min(.5*max(minTol),.0027)+max(minTol))*n
       }
       Dataopt$Work<-Pos
       Dataopt$Work[n:Length]<-n
@@ -237,7 +237,7 @@ for (z in 1:1){
           Dataopt$minTol<-abs(Dataopt$Percentile-m/n)
           minTol[m]<-min(Dataopt$minTol)
         }
-        ToleranceSet<-1+(1.5*max(minTol))*n
+        ToleranceSet<-1+(min(.5*max(minTol),.0027)+max(minTol))*n
       }
       loc <- loc + 1
       Dataopt$Work<-Pos
