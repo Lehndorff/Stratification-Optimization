@@ -36,11 +36,17 @@ subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
   )/sum(data[[size]])
   return(TotalCV)
 }
+InfSamp<-function(CV){
+  round((Critical*as.numeric(CV)/Precision)^2,0)
+}
+FinSamp<-function(InfSamp,Total){
+  ceiling(as.numeric(InfSamp)/(1+as.numeric(InfSamp)/sum(as.numeric(Total))))
+}
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(5)
-MaxCert<-0
+Endusesn<-c(1:9)
+MaxCert<-5
 ToleranceSet<-2
 minTolerance<-1
 Critical<-1.284
@@ -406,10 +412,10 @@ for (z in 1:1){
   k<-(g-f)
   print(k)
   for (i in 1:length(Options[,1])) {
-    Options[i,13]<-round((((Critical*as.numeric(Options[i,4]))/Precision)^2),0)
-    CertOptions[i,13]<-round((((Critical*as.numeric(CertOptions[i,4]))/Precision)^2),0)
-    Options[i,14]<-ceiling(as.numeric(Options[i,13])/(1+as.numeric(Options[i,13])/sum(as.numeric(Options[i,5:10]))))
-    CertOptions[i,14]<-ceiling(as.numeric(CertOptions[i,13])/(1+as.numeric(CertOptions[i,13])/sum(as.numeric(CertOptions[i,5:10]))))
+    Options[i,13]<-InfSamp(CV = Options[i,4])
+    CertOptions[i,13]<-InfSamp(CV = CertOptions[i,4])
+    Options[i,14]<-FinSamp(InfSamp = Options[i,13],Total = Options[i,5:10])
+    CertOptions[i,14]<-FinSamp(InfSamp = CertOptions[i,13],Total = CertOptions[i,5:10])
   }
   # y<-proc.time()
   # print(y-x)
