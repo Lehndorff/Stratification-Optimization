@@ -69,6 +69,8 @@ for (z in 1:1){
   r<-proc.time()
   for (h in Endusesn){
     ToleranceSet<-ToleranceReset
+    Tolerance<-ToleranceSet
+    Tolerance2<-1-(Tolerance-1)
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
@@ -216,6 +218,8 @@ for (z in 1:1){
   f<-proc.time()
   for (h in Endusesn){
     ToleranceSet<-ToleranceReset
+    Tolerance<-ToleranceSet
+    Tolerance2<-1-(Tolerance-1)
     Measure<-Enduses[h]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
     Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
