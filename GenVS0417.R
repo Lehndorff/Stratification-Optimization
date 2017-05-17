@@ -44,7 +44,7 @@ FinSamp<-function(InfSamp,Total){
 }
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
-Strata<-6
+Strata<-5
 Endusesn<-c(1:9)
 MaxCert<-0
 ToleranceSet<-2
@@ -528,4 +528,7 @@ for (z in 1:1){
   FinalDesign<-Design[,c(1:5,8)]
 }
 View(FinalDesign)
+ptm<-proc.time()
+proc.time()-ptm
+
 
