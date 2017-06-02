@@ -13,8 +13,9 @@ symbols<-c("DRWI","WAC","CRK")
 symbols<-c("ADP","SMH","MU","VOO","AAPL","FB","LUV","KMX","NVDA","DIA")
 symbols<-c("JD","BIDU","ORLY","DBK","TKA")
 symbols<-c("VRX","NVAX","AZN","COH","DRYS")
+symbols<-c("ARGS","CERU","CRTN","CVM","DCTH","MBRX","RNVA","SHIP","BIOC","PULM","GSAT","MNKD","NVAX","ANY")
 getSymbols(Symbols = symbols)
-STOCK<-ADP
+STOCK<-BAX
 colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
 STOCK$row<-1:length(STOCK$open)
 STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
@@ -54,8 +55,11 @@ y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
 y3<-rbind(y,y2)
 View(y3)
 tail(STOCK)
-qplot(as.numeric(y3[,1]),abs(as.numeric(y3[,4])))
 
+
+qplot(as.numeric(y3[,1]),abs(as.numeric(y3[,4])))
+y4<-as.data.frame(y3)
+y4$V6<-as.numeric(as.matrix(y4$V5))/as.numeric(as.matrix(y4$Var1))
 
 getQuote("KMX")
 

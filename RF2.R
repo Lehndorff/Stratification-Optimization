@@ -1,16 +1,23 @@
 library(quantmod)
 library(dplyr)
 library(data.table)
-symbolsH<-c("FB","SMH","VOO","RTN","TSLA","NVDA","LUV","KMX","DIA")
+symbolsH<-c("AON","AMP","ADP","SYMC","MO","FB","SMH","VOO","RTN","NVDA","LUV","KMX","DIA")
+symbolsWATCH<-c("PXD","CVX","STT","ADSK")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
+symbols<-"ISRG"
 symbols<-symbolsSP
 getSymbols(Symbols = symbols)
 Results<-NULL
 Bounces<-NULL
 for (j in 1:length(symbols)){
+  Last<-250
   STOCK<-get(symbols[j])
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+  if(length(STOCK$open)<Last){
+    Last<-length(STOCK$open)
+  }
+  STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
   STOCK$row<-1:length(STOCK$open)
   STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
   STOCK$UP<-0
@@ -45,7 +52,8 @@ for (j in 1:length(symbols)){
   y2<-cbind(y2,rev(cumsum(rev(y2[,3]))))
   y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
   y3<-rbind(y,y2)
-  Result<-c(symbols[j],STOCK[length(STOCK$open),10],y3[(STOCK[length(STOCK$open),10]==y3[,1]),5],sum(as.numeric(y3[,5])/as.numeric(y3[,1]),na.rm=TRUE))
+  y3<-cbind(y3,as.numeric(y3[,5])/as.numeric(y3[,1]))
+  Result<-c(symbols[j],STOCK[length(STOCK$open),10],y3[(STOCK[length(STOCK$open),10]==y3[,1]),5],sum(as.numeric(y3[abs(as.numeric(y3[,1]))<(min(abs(range(as.numeric(y3[,1])))-1)),6]),na.rm=TRUE))
   Bounce<-c(symbols[j],y3[y3[,1]==-1,c(4,5)])
   Results<-rbind(Results,Result)
   Bounces<-rbind(Bounces,Bounce)
