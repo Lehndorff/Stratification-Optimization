@@ -1,0 +1,83 @@
+library(quantmod)
+library(dplyr)
+library(data.table)
+symbolsList<-c("SNPS","MCO","NI","ADBE","PKI","BDX","ITW","IDXX","MO","MDT","ARE","DGX","LNT")
+symbolsH<-c("PKI","HCN","PEP","LUV","UNM","PDCO","ADP","NVDA","VOO","DIA","SPXL","SMH")
+symbolsWATCH<-c("PXD","CVX","STT","ADSK")
+symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
+  "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
+symbols<-"FB"
+symbols<-symbolsList
+loadSymbols(Symbols = symbols)
+Trend<-NULL
+for (h in 1:10){
+  Results<-NULL
+  Bounces<-NULL
+  for (j in 1:length(symbols)){
+    Last<-300*h
+    STOCK<-get(symbols[j])
+    colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+    if(length(STOCK$open)<Last){
+      Last<-length(STOCK$open)
+    }
+    STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
+    STOCK$row<-1:length(STOCK$open)
+    STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
+    STOCK$UP<-0
+    STOCK$UP[STOCK$close>STOCK$open]<-1
+    streak<-data.frame(unclass(rle(as.vector(STOCK$UP))))
+    streak$values[streak$values==0]<--1
+    streak$tvalue<-streak$lengths*streak$values
+    y<-as.vector(NULL)
+    for(i in 1:length(streak$lengths)){
+      y<-c(y,rep(streak$tvalue[i],times=streak$lengths[i]))
+    }
+    STOCK<-cbind(STOCK,y)
+    STOCK$NEXT<-stats::lag(STOCK$UP,-1)
+    STOCK$NEXT2<-stats::lag(STOCK$UP,-2)
+    STOCK$DU<-0
+    STOCK$UU<-0
+    STOCK$DU[(STOCK$UP-STOCK$NEXT)==-1]<-1
+    STOCK$UU[(STOCK$UP == 1 & STOCK$NEXT ==1)]<-1
+    STOCK<-as.data.frame(STOCK)
+    STOCK.DOWN<-STOCK[STOCK$UP==0,]
+    STOCK.DOWN$row<-1:length(STOCK.DOWN$row)
+    STOCK.DOWN$pDU<-cumsum(STOCK.DOWN$DU)/STOCK.DOWN$row
+    STOCK.UP<-STOCK[STOCK$UP==1,]
+    STOCK.UP$row<-1:length(STOCK.UP$row)
+    STOCK.UP$pUU<-cumsum(STOCK.UP$UU)/STOCK.UP$row
+    y<-as.matrix(as.data.frame(table(STOCK.DOWN$..2)))
+    y<-cbind(y,as.numeric(y[,2])/as.numeric(y[,1]))
+    y<-cbind(y,cumsum(y[,3]))
+    y<-cbind(y,as.numeric(lag(y[,4],1))/as.numeric(y[,4]))
+    y2<-as.matrix(as.data.frame(table(STOCK.UP$..2)))
+    y2<-cbind(y2,as.numeric(y2[,2])/as.numeric(y2[,1]))
+    y2<-cbind(y2,rev(cumsum(rev(y2[,3]))))
+    y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
+    y3<-rbind(y,y2)
+    y3<-cbind(y3,as.numeric(y3[,5])/as.numeric(y3[,1]))
+    row<-match(TRUE,(STOCK[length(STOCK$open),10]==y3[,1]))
+    Result<-c(symbols[j],STOCK[length(STOCK$open),10],y3[row,5],
+      sum(as.numeric(y3[abs(as.numeric(y3[,1]))<(min(abs(range(as.numeric(y3[,1])))-1)),6]),na.rm=TRUE))
+    Bounce<-c(symbols[j],y3[y3[,1]==-1,c(4,5)])
+    Results<-rbind(Results,Result)
+    Bounces<-rbind(Bounces,Bounce)
+  }
+  Results<-as.data.frame(Results)
+  Keep<-as.vector(as.numeric(as.matrix(Results$V4)))
+  Trend<-cbind(Trend,Keep)
+}
+Trend<-cbind(as.vector(as.matrix(Results$V1)),as.data.frame(Trend))
+View(Trend)
+Trend<-Trend[,1:10]
+Trend$sum<-Trend$Keep+Trend$Keep.1+Trend$Keep.2+Trend$Keep.3+Trend$Keep.4+Trend$Keep.5+Trend$Keep.6+Trend$Keep.7+Trend$Keep.8
+Trend$sum2<-.5*Trend$Keep+.3*Trend$Keep.1+.2*Trend$Keep.8
+
+Trend$Keep[332]<-Trend$Keep[332]-.00001
+Trend$Keep.1[335]<-Trend$Keep.1[335]-.00001
+Trend$Keep.8[422]<-Trend$Keep.8[422]-.00001
+Trend$sum2[332]<-Trend$sum2[332]-.00001
+
+ggplot(Trendz)+
+  geom_point(aes(colnames(Trendz)[2:10],Trendz[1,2:10]))
+Trendz<-as.data.frame(Trend)
