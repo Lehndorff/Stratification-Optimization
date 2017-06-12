@@ -1,17 +1,17 @@
 library(quantmod)
 library(dplyr)
 library(data.table)
-symbolsH<-c("AON","AMP","ADP","SYMC","MO","FB","SMH","VOO","RTN","NVDA","LUV","KMX","DIA")
+symbolsH<-c("PKI","HCN","PEP","LUV","UNM","PDCO","ADP","NVDA","VOO","DIA","SPXL","SMH")
 symbolsWATCH<-c("PXD","CVX","STT","ADSK")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
-symbols<-"ISRG"
+symbols<-"FB"
 symbols<-symbolsSP
-getSymbols(Symbols = symbols)
+loadSymbols(Symbols = symbols)
 Results<-NULL
 Bounces<-NULL
 for (j in 1:length(symbols)){
-  Last<-250
+  Last<-5000
   STOCK<-get(symbols[j])
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){
@@ -53,7 +53,9 @@ for (j in 1:length(symbols)){
   y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
   y3<-rbind(y,y2)
   y3<-cbind(y3,as.numeric(y3[,5])/as.numeric(y3[,1]))
-  Result<-c(symbols[j],STOCK[length(STOCK$open),10],y3[(STOCK[length(STOCK$open),10]==y3[,1]),5],sum(as.numeric(y3[abs(as.numeric(y3[,1]))<(min(abs(range(as.numeric(y3[,1])))-1)),6]),na.rm=TRUE))
+  row<-match(TRUE,(STOCK[length(STOCK$open),10]==y3[,1]))
+  Result<-c(symbols[j],STOCK[length(STOCK$open),10],y3[row,5],
+    sum(as.numeric(y3[abs(as.numeric(y3[,1]))<(min(abs(range(as.numeric(y3[,1])))-1)),6]),na.rm=TRUE))
   Bounce<-c(symbols[j],y3[y3[,1]==-1,c(4,5)])
   Results<-rbind(Results,Result)
   Bounces<-rbind(Bounces,Bounce)
@@ -62,11 +64,77 @@ for (j in 1:length(symbols)){
 q<-getQuote(symbols)
 q$V1<-rownames(q)
 real<-merge(Results,q)
-View(real)
+# View(real)
 
 real$today<-sign(real$Change)
-real$Next<-as.numeric(as.matrix(real$V2))+real$today
+real$streak<-sign(as.numeric(as.matrix(real$V2)))
+real$Next<-0
+real$V2<-as.numeric(as.matrix(real$V2))
+real$Next[real$streak==real$today]<-real$V2[real$streak==real$today]+real$today[real$streak==real$today]
 real$Next[real$Next==0]<-real$today[real$Next==0]
+
+rerun<-select(real,V1,V4,V2,V3,Next)
+rerun$Next[rerun$Next==0]<--1
+symbols2<-as.character(rerun$V1)
+Results2<-NULL
+for (j in 1:length(symbols2)){
+  Last<-5000
+  STOCK<-get(symbols2[j])
+  colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+  if(length(STOCK$open)<Last){
+    Last<-length(STOCK$open)
+  }
+  STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
+  STOCK$row<-1:length(STOCK$open)
+  STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
+  STOCK$UP<-0
+  STOCK$UP[STOCK$close>STOCK$open]<-1
+  streak<-data.frame(unclass(rle(as.vector(STOCK$UP))))
+  streak$values[streak$values==0]<--1
+  streak$tvalue<-streak$lengths*streak$values
+  y<-as.vector(NULL)
+  for(i in 1:length(streak$lengths)){
+    y<-c(y,rep(streak$tvalue[i],times=streak$lengths[i]))
+  }
+  STOCK<-cbind(STOCK,y)
+  STOCK$NEXT<-stats::lag(STOCK$UP,-1)
+  STOCK$NEXT2<-stats::lag(STOCK$UP,-2)
+  STOCK$DU<-0
+  STOCK$UU<-0
+  STOCK$DU[(STOCK$UP-STOCK$NEXT)==-1]<-1
+  STOCK$UU[(STOCK$UP == 1 & STOCK$NEXT ==1)]<-1
+  STOCK<-as.data.frame(STOCK)
+  STOCK.DOWN<-STOCK[STOCK$UP==0,]
+  STOCK.DOWN$row<-1:length(STOCK.DOWN$row)
+  STOCK.DOWN$pDU<-cumsum(STOCK.DOWN$DU)/STOCK.DOWN$row
+  STOCK.UP<-STOCK[STOCK$UP==1,]
+  STOCK.UP$row<-1:length(STOCK.UP$row)
+  STOCK.UP$pUU<-cumsum(STOCK.UP$UU)/STOCK.UP$row
+  y<-as.matrix(as.data.frame(table(STOCK.DOWN$..2)))
+  y<-cbind(y,as.numeric(y[,2])/as.numeric(y[,1]))
+  y<-cbind(y,cumsum(y[,3]))
+  y<-cbind(y,as.numeric(lag(y[,4],1))/as.numeric(y[,4]))
+  y2<-as.matrix(as.data.frame(table(STOCK.UP$..2)))
+  y2<-cbind(y2,as.numeric(y2[,2])/as.numeric(y2[,1]))
+  y2<-cbind(y2,rev(cumsum(rev(y2[,3]))))
+  y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
+  y3<-rbind(y,y2)
+  y3<-cbind(y3,as.numeric(y3[,5])/as.numeric(y3[,1]))
+  row<-match(TRUE,(rerun$Next[j]==y3[,1]))
+  Result2<-c(symbols2[j],rerun$Next[j],y3[row,5])
+  Results2<-rbind(Results2,Result2)
+}
+Results2<-as.data.frame(Results2)
+colnames(Results2)<-c("V1","Next","pNext")
+Final<-left_join(rerun,Results2,by="V1")
+Final$pNext<-as.numeric(as.matrix(Final$pNext))
+Final$prank[sign(Final$Next.x)==1]<-(Final$pNext[sign(Final$Next.x)==1]-mean(Final$pNext[sign(Final$Next.x)==1],na.rm=TRUE))/sd(Final$Next.x[sign(Final$Next.x)==1],na.rm=TRUE)
+Final$prank[sign(Final$Next.x)==-1]<-(Final$pNext[sign(Final$Next.x)==-1]-mean(Final$pNext[sign(Final$Next.x)==-1],na.rm=TRUE))/sd(Final$Next.x[sign(Final$Next.x)==-1],na.rm=TRUE)
+Final$pUP[sign(Final$Next.x)==1]<-Final$pNext[sign(Final$Next.x)==1]
+Final$pUP[sign(Final$Next.x)==-1]<-1-Final$pNext[sign(Final$Next.x)==-1]
+Final$upscore<-Final$pUP*as.numeric(as.matrix(Final$V4))
+Final$upscorerank<-(Final$upscore-mean(Final$upscore,na.rm = TRUE))/sd(Final$upscore,na.rm = TRUE)
+View(Final)
 
 STT2$V6<-as.numeric(as.matrix(STT2$V5))/as.numeric(as.matrix(STT2$Var1))
 
@@ -155,6 +223,7 @@ symbolsSP<-c(
 "COG",
 "CPB",
 "COF",
+"COP",
 "CAH",
 "CBOE",
 "KMX",
@@ -194,7 +263,6 @@ symbolsSP<-c(
 "CMA",
 "CAG",
 "CXO",
-"COP",
 "ED",
 "STZ",
 "COO",
