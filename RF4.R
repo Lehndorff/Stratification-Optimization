@@ -1,13 +1,18 @@
 library(quantmod)
 library(dplyr)
 library(data.table)
+library(beepr)
 symbolsList<-c("CMS","TEL","D","SNPS","APH","NSC","MCO","ALLE","ESS","ADBE","RSG","BCR","NI","EIX","SPGI")
-symbolsH<-c("PKI","ALB","KLAC","ADBE","BBY","HPQ","IDXX","SNPS","SPXL","DIA")
+symbolsH<-c("PKI","KLAC","ADBE","BBY","HPQ","IDXX","SNPS","SPXL","DIA")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"FB"
 symbols<-symbolsSP
-loadSymbols(Symbols = symbols)
+for (i in match("MMM",symbols):length(symbols)){
+  loadSymbols(Symbols = symbols[i])
+  print(i)
+}
+beep()
 q<-getQuote(symbols)
 Marks<-c(150,250,500,1000,3000)
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)

@@ -6,8 +6,11 @@ symbolsWATCH<-c("PXD","CVX","STT","ADSK")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"KLAC"
-symbols<-symbolsSP
-loadSymbols(Symbols = symbols)
+symbols<-symbolsY
+for (i in match("FE",symbols):length(symbols)){
+  loadSymbols(Symbols = symbols[i])
+}
+loadSymbols(Symbols = symbols[40:49])
 Results<-NULL
 Bounces<-NULL
 for (j in 1:length(symbols)){
@@ -64,7 +67,7 @@ for (j in 1:length(symbols)){
 q<-getQuote(symbols)
 q$V1<-rownames(q)
 real<-merge(Results,q)
-# View(real)
+View(real)
 
 real$today<-sign(real$Change)
 real$streak<-sign(as.numeric(as.matrix(real$V2)))

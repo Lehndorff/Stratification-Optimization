@@ -15,7 +15,7 @@ symbols<-c("JD","BIDU","ORLY","DBK","TKA")
 symbols<-c("VRX","NVAX","AZN","COH","DRYS")
 symbols<-c("ARGS","CERU","CRTN","CVM","DCTH","MBRX","RNVA","SHIP","BIOC","PULM","GSAT","MNKD","NVAX","ANY")
 getSymbols(Symbols = symbols)
-STOCK<-D
+STOCK<-MKC
 colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
 STOCK$row<-1:length(STOCK$open)
 STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
@@ -53,7 +53,7 @@ y2<-cbind(y2,as.numeric(y2[,2])/as.numeric(y2[,1]))
 y2<-cbind(y2,rev(cumsum(rev(y2[,3]))))
 y2<-cbind(y2,(as.numeric(lead(y2[,4],1)))/as.numeric(y2[,4]))
 y3<-rbind(y,y2)
-View(y3)
+# View(y3)
 tail(STOCK)
 
 
@@ -75,13 +75,18 @@ y<-as.vector(CAT$CAT.Open)
 cor(x,y)
 
 symbolsY<-c(
-"D",
-"FBHS",
-"FIS",
-"IDXX",
-"MTB",
-"PBCT",
-"PEP",
-"SNPS",
-"TIF")
+"A",
+"ADBE",
+"ALB",
+"BBY",
+"BWA",
+"DISH",
+"HPQ",
+"KLAC",
+"LH",
+"MAA",
+"PNW",
+"VLO",
+"WU",
+"XLNX")
 
