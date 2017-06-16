@@ -1,17 +1,17 @@
 library(quantmod)
 library(dplyr)
 library(data.table)
-symbolsH<-c("PKI","HCN","PEP","LUV","UNM","PDCO","ADP","NVDA","VOO","DIA","SPXL","SMH")
+symbolsH<-c("PDCO","HCN","PKI","SPXL","ADP","VOO","DIA","SH","GLD","MDT")
 symbolsWATCH<-c("PXD","CVX","STT","ADSK")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
-symbols<-"FB"
+symbols<-"KLAC"
 symbols<-symbolsSP
 loadSymbols(Symbols = symbols)
 Results<-NULL
 Bounces<-NULL
 for (j in 1:length(symbols)){
-  Last<-5000
+  Last<-200
   STOCK<-get(symbols[j])
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){
@@ -78,7 +78,7 @@ rerun$Next[rerun$Next==0]<--1
 symbols2<-as.character(rerun$V1)
 Results2<-NULL
 for (j in 1:length(symbols2)){
-  Last<-5000
+  Last<-2000
   STOCK<-get(symbols2[j])
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){

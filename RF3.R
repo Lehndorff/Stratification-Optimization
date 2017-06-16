@@ -1,20 +1,22 @@
 library(quantmod)
 library(dplyr)
 library(data.table)
-symbolsList<-c("SNPS","MCO","NI","ADBE","PKI","BDX","ITW","IDXX","MO","MDT","ARE","DGX","LNT")
+library(ggplot2)
+library(reshape2)
+symbolsList<-c("CMS","TEL","D","SNPS","APH","NSC","MCO","ALLE","ESS","ADBE","RSG","BCR","NI","EIX","SPGI")
 symbolsH<-c("PKI","HCN","PEP","LUV","UNM","PDCO","ADP","NVDA","VOO","DIA","SPXL","SMH")
 symbolsWATCH<-c("PXD","CVX","STT","ADSK")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"FB"
-symbols<-symbolsList
+symbols<-symbolsDOW
 loadSymbols(Symbols = symbols)
 Trend<-NULL
-for (h in 1:10){
+for (h in 1:20){
   Results<-NULL
   Bounces<-NULL
   for (j in 1:length(symbols)){
-    Last<-300*h
+    Last<-150*h
     STOCK<-get(symbols[j])
     colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
     if(length(STOCK$open)<Last){
@@ -69,15 +71,67 @@ for (h in 1:10){
 }
 Trend<-cbind(as.vector(as.matrix(Results$V1)),as.data.frame(Trend))
 View(Trend)
-Trend<-Trend[,1:10]
+Trend<-Trend[,1:20]
 Trend$sum<-Trend$Keep+Trend$Keep.1+Trend$Keep.2+Trend$Keep.3+Trend$Keep.4+Trend$Keep.5+Trend$Keep.6+Trend$Keep.7+Trend$Keep.8
-Trend$sum2<-.5*Trend$Keep+.3*Trend$Keep.1+.2*Trend$Keep.8
+Trend$sum2<-.15*Trend$Keep+.25*Trend$Keep.1+.2*Trend$Keep.2+.3*Trend$Keep.16+.1*Trend$Keep.10
+
+Trend[,2:21]<-Trend[,2:21]-.0001
 
 Trend$Keep[332]<-Trend$Keep[332]-.00001
 Trend$Keep.1[335]<-Trend$Keep.1[335]-.00001
 Trend$Keep.8[422]<-Trend$Keep.8[422]-.00001
 Trend$sum2[332]<-Trend$sum2[332]-.00001
 
-ggplot(Trendz)+
-  geom_point(aes(colnames(Trendz)[2:10],Trendz[1,2:10]))
-Trendz<-as.data.frame(Trend)
+Dentr<-transpose(TrendpUp)
+ggplot()+
+  geom_line(aes(1:6,as.numeric(Dentr$V1[2:7]),color=Dentr$V1[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V2[2:7]),color=Dentr$V2[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V3[2:7]),color=Dentr$V3[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V4[2:7]),color=Dentr$V4[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V5[2:7]),color=Dentr$V5[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V6[2:7]),color=Dentr$V6[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V7[2:7]),color=Dentr$V7[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V8[2:7]),color=Dentr$V8[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V9[2:7]),color=Dentr$V9[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V10[2:7]),color=Dentr$V10[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V11[2:7]),color=Dentr$V11[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V12[2:7]),color=Dentr$V12[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V13[2:7]),color=Dentr$V13[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V14[2:7]),color=Dentr$V14[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V15[2:7]),color=Dentr$V15[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V16[2:7]),color=Dentr$V16[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V17[2:7]),color=Dentr$V17[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V18[2:7]),color=Dentr$V18[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V19[2:7]),color=Dentr$V19[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V20[2:7]),color=Dentr$V20[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V21[2:7]),color=Dentr$V21[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V22[2:7]),color=Dentr$V22[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V23[2:7]),color=Dentr$V23[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V24[2:7]),color=Dentr$V24[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V25[2:7]),color=Dentr$V25[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V26[2:7]),color=Dentr$V26[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V27[2:7]),color=Dentr$V27[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V28[2:7]),color=Dentr$V28[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V29[2:7]),color=Dentr$V29[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V30[2:7]),color=Dentr$V30[1]))+
+  xlim(1,5)+
+  ylim(0.5,0.9)
+
+Dentr<-transpose(TrendpUp)
+ggplot()+
+  geom_line(aes(1:6,as.numeric(Dentr$V412[2:7]),color=Dentr$V412[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V242[2:7]),color=Dentr$V242[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V37[2:7]),color=Dentr$V37[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V178[2:7]),color=Dentr$V178[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V125[2:7]),color=Dentr$V125[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V243[2:7]),color=Dentr$V243[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V431[2:7]),color=Dentr$V431[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V183[2:7]),color=Dentr$V183[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V9[2:7]),color=Dentr$V9[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V10[2:7]),color=Dentr$V10[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V323[2:7]),color=Dentr$V323[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V177[2:7]),color=Dentr$V177[1]))+
+  geom_line(aes(1:6,as.numeric(Dentr$V32[2:7]),color=Dentr$V32[1]))+
+  xlim(1,5)+
+  ylim(0.2,.8)
+
