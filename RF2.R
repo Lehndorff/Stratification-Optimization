@@ -81,7 +81,7 @@ rerun$Next[rerun$Next==0]<--1
 symbols2<-as.character(rerun$V1)
 Results2<-NULL
 for (j in 1:length(symbols2)){
-  Last<-2000
+  Last<-250
   STOCK<-get(symbols2[j])
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){

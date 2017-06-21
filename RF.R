@@ -15,7 +15,7 @@ symbols<-c("JD","BIDU","ORLY","DBK","TKA")
 symbols<-c("VRX","NVAX","AZN","COH","DRYS")
 symbols<-c("ARGS","CERU","CRTN","CVM","DCTH","MBRX","RNVA","SHIP","BIOC","PULM","GSAT","MNKD","NVAX","ANY")
 getSymbols(Symbols = symbols)
-STOCK<-MKC
+STOCK<-CMS
 colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
 STOCK$row<-1:length(STOCK$open)
 STOCK$pCHANGE<-(STOCK$close-STOCK$open)/STOCK$open*100
@@ -75,18 +75,27 @@ y<-as.vector(CAT$CAT.Open)
 cor(x,y)
 
 symbolsY<-c(
-"A",
-"ADBE",
-"ALB",
-"BBY",
-"BWA",
-"DISH",
-"HPQ",
-"KLAC",
-"LH",
-"MAA",
-"PNW",
-"VLO",
-"WU",
-"XLNX")
-
+'ADBE',
+'AEP',
+'ALLE',
+'BLL',
+'BWA',
+'CERN',
+'CINF',
+'CMS',
+'CNP',
+'DISH',
+'DXC',
+'ED',
+'EIX',
+'INTU',
+'ITW',
+'LNT',
+'MAR',
+'NSC',
+'RJF',
+'SNPS',
+'TGNA',
+'XEL')
+SDFS<-Final[Final$V1 %in% symbolsY,]
+getQuote(symbolsY)
