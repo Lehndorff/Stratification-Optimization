@@ -7,7 +7,7 @@ symbolsH<-c("ADBE","BBY","SPXL","DIA","RAD","EIX","ITW")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"EQR"
-symbols<-symbolsSP
+symbols<-symbolsY
 for (i in 1:length(symbols)){
   loadSymbols(Symbols = symbols[i])
   print(i)
@@ -177,12 +177,14 @@ TrendscWatch<-TrendpScore[TrendpScore$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendupWatch%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 TrendupWatch$mean<-TrendupWatch$sum/length(Marks)
 
-# write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
-# write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
-# write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
+write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
+write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
+write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
 
 UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
+beep()
+
 TEST<-cbind(q,Final$V2)
 TEST<-cbind(UpXWToday,Final$V2[Final$V1 %in% symbolsWatch])
 chart_Series(FAZ2[2000:2158,],type = "line")
