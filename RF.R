@@ -75,11 +75,20 @@ y<-as.vector(CAT$CAT.Open)
 cor(x,y)
 
 symbolsY<-c(
-"ADBE",
+"ADSK",
+"CERN",
+"DISH",
 "DXC",
-"EA",
-"FISV",
-"LKQ",
-"PWR")
+"EBAY",
+"EW",
+"FB",
+"FFIV",
+"HSIC",
+"IDXX",
+"IRM",
+"LH",
+"RHT",
+"URI",
+"VRSN")
 SDFS<-Final[Final$V1 %in% symbolsY,]
 getQuote(symbolsY)

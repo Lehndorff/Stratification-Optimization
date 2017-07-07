@@ -8,10 +8,11 @@ symbolsH<-c("PBCT","EQR","BBY","QRVO","ALB","ITW","DIA")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"EQR"
-symbols <-symbolsSP
-symbols<-unique(c(symbolsSP,SymbolsNAS))
+symbols <-symbolsY
+# symbols<-unique(c(symbolsSP,SymbolsNAS))
 ptm<-proc.time()
-for (i in 3231:length(symbols)){
+l<-match("MMM",symbols)
+for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
   print(i)
 }
@@ -162,12 +163,12 @@ for (p in 1:length(TrendpUp$V1)){
 }
 TrendpUp$YES<-0
 # TrendpUp$YES[TrendpUp$V2>.6&TrendpUp$V3>.6&TrendpUp$V4>.6&TrendpUp$V5>.6&TrendpUp$V6>.55]<-1
-for (t in 1:length(TrendpUp$V1)){
-  TrendpUp$YES[t]<-((sum(TrendpUp[t,2:8]>=.6,na.rm = TRUE)+sum(TrendpUp[t,9:11]>.55,na.rm = TRUE)))*(sum(TrendpUp[t,2:11]<=.5,na.rm=TRUE)==0)
-}
 # for (t in 1:length(TrendpUp$V1)){
-#   TrendpUp$YES[t]<-((sum(TrendpUp[t,2:8]>=.56,na.rm = TRUE)+sum(TrendpUp[t,9:11]>.53,na.rm = TRUE)))*(sum(TrendpUp[t,2:11]<=.5,na.rm=TRUE)==0)
+#   TrendpUp$YES[t]<-((sum(TrendpUp[t,2:8]>=.6,na.rm = TRUE)+sum(TrendpUp[t,9:11]>.55,na.rm = TRUE)))*(sum(TrendpUp[t,2:11]<=.5,na.rm=TRUE)==0)
 # }
+for (t in 1:length(TrendpUp$V1)){
+  TrendpUp$YES[t]<-((sum(TrendpUp[t,2:8]>=.56,na.rm = TRUE)+sum(TrendpUp[t,9:11]>.53,na.rm = TRUE)))*(sum(TrendpUp[t,2:11]<=.5,na.rm=TRUE)==0)
+}
 # for (t in 1:length(TrendpUp$V1)){
 #   TrendpUp$YES[t]<-((sum(TrendpUp[t,2:3]>=.6,na.rm = TRUE)+sum(TrendpUp[t,4:6]>.55,na.rm = TRUE)))*(sum(TrendpUp[t,6]<=.5,na.rm=TRUE)==0)
 # }
@@ -180,7 +181,7 @@ UpX$Score2<-UpX$YES*UpX$`TrendpScore$sum`
 # UpX$`TrendpScore$sum`<-UpX$`TrendpScore$sum`-.001
 # View(UpX)
 symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13))==2]))
-# symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
+symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
 symbolsWatch<-symbolsWatch[!is.na(symbolsWatch)]
 
 UpXWatch<-UpX[UpX$V1 %in% symbolsWatch,]
@@ -189,9 +190,9 @@ TrendscWatch<-TrendpScore[TrendpScore$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendupWatch%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 TrendupWatch$mean<-TrendupWatch$sum/length(Marks)
 
-write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
-write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
-write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
+# write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
+# write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
+# write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
 
 UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
@@ -199,13 +200,13 @@ beep()
 
 TEST<-cbind(q,Final$V2)
 TEST<-cbind(UpXWToday,Final$V2[Final$V1 %in% symbolsWatch])
-STOCKRec<-AON
+STOCKRec<-CTXS
 chart_Series(STOCKRec[Recent(STOCKRec,100)[1]:Recent(STOCKRec,100)[2]],type = "line")
 
 Marks<-(65*1:45)
 for (z in 1:length(TrendpUp$V1)){
-  TrendpUp$min[z]<-range(TrendpUp[z,2:6])[1]
-  TrendpUp$max[z]<-range(TrendpUp[z,2:6])[2]
+  TrendpUp$min[z]<-range(TrendpUp[z,2:16])[1]
+  TrendpUp$max[z]<-range(TrendpUp[z,2:16])[2]
 }
 
 Recent<-function(symbol,days){
