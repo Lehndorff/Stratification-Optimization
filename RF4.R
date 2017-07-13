@@ -11,6 +11,7 @@ symbols<-"EQR"
 symbols <-symbolsY
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 ptm<-proc.time()
+l<-1
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
@@ -181,7 +182,7 @@ UpX$Score2<-UpX$YES*UpX$`TrendpScore$sum`
 # UpX$`TrendpScore$sum`<-UpX$`TrendpScore$sum`-.001
 # View(UpX)
 symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13))==2]))
-symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
+# symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
 symbolsWatch<-symbolsWatch[!is.na(symbolsWatch)]
 
 UpXWatch<-UpX[UpX$V1 %in% symbolsWatch,]
@@ -190,9 +191,9 @@ TrendscWatch<-TrendpScore[TrendpScore$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendupWatch%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 TrendupWatch$mean<-TrendupWatch$sum/length(Marks)
 
-# write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
-# write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
-# write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
+write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
+write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
+write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
 
 UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
@@ -200,8 +201,9 @@ beep()
 
 TEST<-cbind(q,Final$V2)
 TEST<-cbind(UpXWToday,Final$V2[Final$V1 %in% symbolsWatch])
-STOCKRec<-CTXS
-chart_Series(STOCKRec[Recent(STOCKRec,100)[1]:Recent(STOCKRec,100)[2]],type = "line")
+STOCKRec<-ARE
+r<-2500
+chart_Series(STOCKRec[Recent(STOCKRec,r)[1]:Recent(STOCKRec,r)[2]],type = "line")
 
 Marks<-(65*1:45)
 for (z in 1:length(TrendpUp$V1)){
@@ -218,3 +220,7 @@ Recent(GD,250)[1]:Recent(GD,250)[2]
 TrendpUp<-TrendpUp%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 
 TrendupWatch<-TrendupWatch[TrendupWatch$min!=TrendupWatch$max,]
+
+z<-fractions(Test$V3[!is.na(Test$V3)])
+z<-2
+cbind(x,z)

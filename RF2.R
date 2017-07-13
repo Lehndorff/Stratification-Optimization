@@ -141,6 +141,7 @@ View(Final)
 
 STT2$V6<-as.numeric(as.matrix(STT2$V5))/as.numeric(as.matrix(STT2$Var1))
 
+# - symbolsSP ----
 symbolsSP<-c(
 "MMM",
 "ABT",
