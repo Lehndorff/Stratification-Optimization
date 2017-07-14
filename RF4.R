@@ -8,7 +8,7 @@ symbolsH<-c("PBCT","EQR","BBY","QRVO","ALB","ITW","DIA")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"EQR"
-symbols <-symbolsY
+symbols <-symbolsSP
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 ptm<-proc.time()
 l<-1
@@ -25,6 +25,7 @@ q<-getQuote(symbols)
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
 TrendpUp<-NULL
 TrendpScore<-NULL
+TrendDen<-NULL
 for (h in Marks){
   Results<-NULL
   Bounces<-NULL
@@ -137,11 +138,11 @@ for (h in Marks){
     y3<-rbind(y,y2)
     y3<-cbind(y3,as.numeric(y3[,5])/as.numeric(y3[,1]))
     row<-match(TRUE,(rerun$Next[j]==y3[,1]))
-    Result2<-c(symbols2[j],rerun$Next[j],y3[row,5])
+    Result2<-c(symbols2[j],rerun$Next[j],y3[row,5],y3[row,4])
     Results2<-rbind(Results2,Result2)
   }
   Results2<-as.data.frame(Results2)
-  colnames(Results2)<-c("V1","Next","pNext")
+  colnames(Results2)<-c("V1","Next","pNext","denom")
   Final<-left_join(rerun,Results2,by="V1")
   Final$pNext<-as.numeric(as.matrix(Final$pNext))
   Final$pUP[sign(Final$Next.x)==1]<-Final$pNext[sign(Final$Next.x)==1]
@@ -149,15 +150,20 @@ for (h in Marks){
   Final$upscore<-Final$pUP*as.numeric(as.matrix(Final$V4))
   TrendpUp<-cbind(TrendpUp,Final$pUP)
   TrendpScore<-cbind(TrendpScore,Final$upscore)
+  TrendDen<-cbind(TrendDen,as.numeric(as.matrix(Final$denom)))
 }
 TrendpUp<-cbind(as.vector(as.matrix(Final$V1)),TrendpUp)
 TrendpScore<-cbind(as.vector(as.matrix(Final$V1)),TrendpScore)
+TrendDen<-cbind(as.vector(as.matrix(Final$V1)),TrendDen)
 TrendpUp<-as.data.frame(TrendpUp[,1:(length(Marks)+1)])
 TrendpScore<-as.data.frame(TrendpScore[,1:(length(Marks)+1)])
+TrendDen<-as.data.frame(TrendDen[,1:(length(Marks)+1)])
 TrendpUp[,2:(length(Marks)+1)]<-as.numeric(as.matrix(TrendpUp[,2:(length(Marks)+1)]))
 TrendpScore[,2:(length(Marks)+1)]<-as.numeric(as.matrix(TrendpScore[,2:(length(Marks)+1)]))
+TrendDen[,2:(length(Marks)+1)]<-as.numeric(as.matrix(TrendDen[,2:(length(Marks)+1)]))
 TrendpUp<-as.data.frame(TrendpUp)
 TrendpScore<-as.data.frame(TrendpScore)
+TrendDen<-as.data.frame(TrendDen)
 for (p in 1:length(TrendpUp$V1)){
   TrendpUp$sum[p]<-sum(TrendpUp[p,2:(length(Marks)+1)])
   TrendpScore$sum[p]<-sum(TrendpScore[p,2:(length(Marks)+1)],na.rm=TRUE)
@@ -190,10 +196,11 @@ TrendupWatch<-TrendpUp[TrendpUp$V1 %in% symbolsWatch,]
 TrendscWatch<-TrendpScore[TrendpScore$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendupWatch%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 TrendupWatch$mean<-TrendupWatch$sum/length(Marks)
+TrendDenWatch<-TrendDen[TrendDen$V1 %in% symbolsWatch,]
 
-write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
-write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
-write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
+# write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
+# write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
+# write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
 
 UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
@@ -224,3 +231,5 @@ TrendupWatch<-TrendupWatch[TrendupWatch$min!=TrendupWatch$max,]
 z<-fractions(Test$V3[!is.na(Test$V3)])
 z<-2
 cbind(x,z)
+
+fractions(as.numeric(as.vector(TrendpUp[TrendpUp$V1=="ALL",2:11])))
