@@ -206,6 +206,9 @@ UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
 beep()
 
+INFO<-as.data.frame(cbind(as.character(as.vector(TrendDenWatch$V1)),UpXWToday$YES, UpXWToday$`TrendpScore$sum`,UpXWToday$Score2,TrendupWatch$min,TrendupWatch$sum,as.numeric(as.vector(TrendDenWatch$V2)),UpXWToday$`% Change`))
+colnames(INFO)<-c("SYMB","YES","SCORE","SCORE2","MIN","SUM","DEN","TODAY")
+
 TEST<-cbind(q,Final$V2)
 TEST<-cbind(UpXWToday,Final$V2[Final$V1 %in% symbolsWatch])
 STOCKRec<-ARE
