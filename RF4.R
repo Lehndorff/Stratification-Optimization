@@ -7,8 +7,8 @@ symbolsETF<-c("DIA","SPY","FAS","QQQ","SPXL","SOCL","IHF","GXF","IGV","BJK","RYH
 symbolsH<-c("PBCT","EQR","BBY","QRVO","ALB","ITW","DIA")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
-symbols<-"EQR"
-symbols <-symbolsSP
+symbols<-"SWKS"
+symbols <-symbolsDOW
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 ptm<-proc.time()
 l<-1
@@ -180,14 +180,15 @@ for (t in 1:length(TrendpUp$V1)){
 #   TrendpUp$YES[t]<-((sum(TrendpUp[t,2:3]>=.6,na.rm = TRUE)+sum(TrendpUp[t,4:6]>.55,na.rm = TRUE)))*(sum(TrendpUp[t,6]<=.5,na.rm=TRUE)==0)
 # }
 
-UpX<-as.data.frame(cbind(select(TrendpUp,V1,YES),TrendpScore$sum))
+UpX<-as.data.frame(cbind(select(TrendpUp,V1,YES),TrendpScore$sum,select(TrendDen,V2)))
 # UpX<-as.data.frame(cbind(TrendpUp[,c(1,16)],TrendpScore$sum))
 
 UpX$Score2<-UpX$YES*UpX$`TrendpScore$sum`
 # UpX$Score2<-UpX$sum*UpX$`TrendpScore$sum`
 # UpX$`TrendpScore$sum`<-UpX$`TrendpScore$sum`-.001
 # View(UpX)
-symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13))==2]))
+symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13)+(abs(UpX$V2)>=8))==3]))
+# symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13))==2]))
 # symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
 symbolsWatch<-symbolsWatch[!is.na(symbolsWatch)]
 
@@ -197,6 +198,8 @@ TrendscWatch<-TrendpScore[TrendpScore$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendupWatch%>%group_by(V1)%>%mutate(min=min(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE),max=max(V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,na.rm=TRUE))
 TrendupWatch$mean<-TrendupWatch$sum/length(Marks)
 TrendDenWatch<-TrendDen[TrendDen$V1 %in% symbolsWatch,]
+TrendupWatch$minfirst<-as.numeric(TrendupWatch$min==TrendupWatch$V11)
+TrendupWatch$maxlast<-as.numeric(TrendupWatch$max==TrendupWatch$V2)
 
 # write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
 # write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
@@ -206,13 +209,13 @@ UpXWToday<-merge(UpXWatch,q)
 View(UpXWToday)
 beep()
 
-INFO<-as.data.frame(cbind(as.character(as.vector(TrendDenWatch$V1)),UpXWToday$YES, UpXWToday$`TrendpScore$sum`,UpXWToday$Score2,TrendupWatch$min,TrendupWatch$sum,as.numeric(as.vector(TrendDenWatch$V2)),UpXWToday$`% Change`))
-colnames(INFO)<-c("SYMB","YES","SCORE","SCORE2","MIN","SUM","DEN","TODAY")
+# INFO<-as.data.frame(cbind(as.character(as.vector(TrendDenWatch$V1)),UpXWToday$YES, UpXWToday$`TrendpScore$sum`,UpXWToday$Score2,TrendupWatch$min,TrendupWatch$sum,as.numeric(as.vector(TrendDenWatch$V2)),UpXWToday$`% Change`))
+# colnames(INFO)<-c("SYMB","YES","SCORE","SCORE2","MIN","SUM","DEN","TODAY")
 
 TEST<-cbind(q,Final$V2)
 TEST<-cbind(UpXWToday,Final$V2[Final$V1 %in% symbolsWatch])
-STOCKRec<-ARE
-r<-2500
+STOCKRec<-USB
+r<-10
 chart_Series(STOCKRec[Recent(STOCKRec,r)[1]:Recent(STOCKRec,r)[2]],type = "line")
 
 Marks<-(65*1:45)
