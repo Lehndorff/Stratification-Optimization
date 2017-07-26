@@ -6,7 +6,7 @@ symbolsETF<-c("DIA","SPY","FAS","QQQ","SPXL","SOCL","IHF","GXF","IGV","BJK","RYH
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbols<-"DIA"
-symbols <-symbolsSP
+symbols <-symbolsY
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 l<-1
 l<-match("MMM",symbols)

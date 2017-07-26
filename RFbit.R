@@ -2,14 +2,17 @@ library(quantmod)
 library(dplyr)
 library(data.table)
 library(beepr)
-symbols <-symbolsSP
+symbols <-symbolsDOW
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
   print(i)
 }
+ptm<-proc.time()
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
-bit<-10
+History<-NULL
+for (z in 60:2){
+  bit<-z
 TrendpUp<-NULL
 TrendpScore<-NULL
 TrendDen<-NULL
@@ -196,6 +199,7 @@ symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.2)+
 # symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=8)+(UpX$`TrendpScore$sum`>=.13))==2]))
 # symbolsWatch<-as.vector(unique(UpX$V1[((UpX$YES>=4)+(UpX$`TrendpScore$sum`>.1))==2]))
 symbolsWatch<-symbolsWatch[!is.na(symbolsWatch)]
+# symbolsWatch<-symbolsDOW
 
 UpXWatch<-UpX[UpX$V1 %in% symbolsWatch,]
 TrendupWatch<-TrendpUp[TrendpUp$V1 %in% symbolsWatch,]
@@ -218,9 +222,16 @@ for (j in 1:length(symbols)){
 }
 Tomorrow<-as.data.frame(Tomorrow)
 TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
-sum(sign(as.numeric(as.vector(TomorrowWatch$V2)))>0)/length(TomorrowWatch$V2)
+TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
+print(row.names(as.data.frame(STOCK2))[nrow(STOCK2)-bit+1])
+# print(sum(sign(as.numeric(as.vector(TomorrowWatch$V2)))>0)/length(TomorrowWatch$V2))
 
-Print<-cbind(select(TrendupWatch2,V1,min,max,mean),select(TrendscWatch,sum), select(FinalWatch,Next.x),select(TomorrowWatch,V2,V3), date=row.names(STOCK)[nrow(STOCK)])
+Print<-cbind(select(TrendupWatch2,V1,min,max,mean),select(TrendscWatch,sum), select(FinalWatch,Next.x),select(TomorrowWatch,V2,V3), date=row.names(as.data.frame(STOCK2))[nrow(STOCK2)-bit+1])
+History<-rbind(History,Print)
+# print((proc.time()-ptm)/60)
+}
+(proc.time()-ptm)/60
+beep()
 
 # write.csv(UpXWatch,"~/Desktop/UpXWatch.csv")
 # write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
