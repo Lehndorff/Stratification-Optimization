@@ -75,28 +75,10 @@ y<-as.vector(CAT$CAT.Open)
 cor(x,y)
 
 symbolsY<-c(
-"ACN",
-"ALLE",
-"BWA",
-"CBOE",
-"CHD",
-"CLX",
-"CMI",
-"CSX",
-"GOOG",
-"GRMN",
-"ICE",
-"KORS",
-"LKQ",
-"MRK",
-"NVDA",
-"PGR",
-"PLD",
-"PM",
-'RF',
-"SHW",
-"UNP",
-"VFC",
-"XRAY")
+"IRM",
+"QRVO",
+"RHT",
+"SNPS",
+"TDG")
 YEST<-cbind(symbolsY,Final[Final$V1 %in% symbolsY,3],q[q$V1 %in% symbolsY,4])
 getQuote(symbolsY)

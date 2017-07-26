@@ -7,8 +7,8 @@ symbolsETF<-c("DIA","SPY","FAS","QQQ","SPXL","SOCL","IHF","GXF","IGV","BJK","RYH
 symbolsH<-c("PBCT","EQR","BBY","QRVO","ALB","ITW","DIA")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
-symbols<-"SWKS"
-symbols <-symbolsSP
+symbols<-"DIA"
+symbols <-symbolsETF
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 ptm<-proc.time()
 l<-1
