@@ -2,7 +2,7 @@ library(quantmod)
 library(dplyr)
 library(data.table)
 library(beepr)
-symbols <-symbolsDOW
+symbols <-symbolsSP
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
@@ -11,22 +11,23 @@ for (i in l:length(symbols)){
 ptm<-proc.time()
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
 History<-NULL
-for (z in 60:2){
+for (z in 30:2){
   bit<-z
-TrendpUp<-NULL
-TrendpScore<-NULL
-TrendDen<-NULL
-q<-matrix(data = NA, nrow=length(symbols),ncol = 2)
-q[,1]<-symbols
-for (j in 1:length(symbols)){
-  STOCK<-na.approx(get(symbols[j]))
-  colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
-  q[j,2]<-sign(STOCK$close-lag(STOCK$close))[nrow(STOCK)-bit+1]
-}
-q<-as.data.frame(q)
-names(q)<-c("symb","Change")
-row.names(q)<-q$symb
-q$Change<-as.numeric(as.vector(q$Change))
+  TrendpUp<-NULL
+  TrendpScore<-NULL
+  TrendDen<-NULL
+  q<-matrix(data = NA, nrow=length(symbols),ncol = 3)
+  q[,1]<-symbols
+  for (j in 1:length(symbols)){
+    STOCK<-na.approx(get(symbols[j]))
+    colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+    q[j,2]<-STOCK$close-lag(STOCK$close)[nrow(STOCK)-bit+1]
+    q[j,3]<-sign(STOCK$close-lag(STOCK$close))[nrow(STOCK)-bit+1]
+  }
+  q<-as.data.frame(q)
+  names(q)<-c("symb","Change","sign")
+  row.names(q)<-q$symb
+  q$Change<-as.numeric(as.vector(q$Change))
 for (h in Marks){
   Results<-NULL
   Bounces<-NULL
@@ -224,7 +225,7 @@ Tomorrow<-as.data.frame(Tomorrow)
 TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
 TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
 print(row.names(as.data.frame(STOCK2))[nrow(STOCK2)-bit+1])
-# print(sum(sign(as.numeric(as.vector(TomorrowWatch$V2)))>0)/length(TomorrowWatch$V2))
+print(sum(sign(as.numeric(as.vector(TomorrowWatch$V2)))>0)/length(TomorrowWatch$V2))
 
 Print<-cbind(select(TrendupWatch2,V1,min,max,mean),select(TrendscWatch,sum), select(FinalWatch,Next.x),select(TomorrowWatch,V2,V3), date=row.names(as.data.frame(STOCK2))[nrow(STOCK2)-bit+1])
 History<-rbind(History,Print)
@@ -237,5 +238,10 @@ beep()
 # write.csv(TrendupWatch,"~/desktop/TrendUp.csv")
 # write.csv(TrendscWatch,"~/desktop/TrendScore.csv")
 
-UpXWToday<-merge(UpXWatch,q)
-View(UpXWToday)
+History$rf<-as.numeric(as.vector(History$V2))
+History$up<-as.numeric(History$rf>0)
+History2<-History%>%group_by(sign(History$rf))%>%summarise(min=mean(mean),max=mean(max),mean=mean(mean,na.rm=TRUE),sum=mean(sum),n=n())
+History3<-History%>%group_by(date)%>%summarise(min=mean(mean),max=mean(max),mean=mean(mean,na.rm=TRUE),sum=mean(sum),rf=mean(rf),up=sum(up),n=n())
+History3$pct.right<-History3$up/History3$n
+History4<-History[(History$date!="2017-06-19")&(History$date!="2017-06-20")&(History$date!="2017-06-21"),]
+History2<-History4%>%group_by(sign(History4$rf))%>%summarise(min=mean(min),max=mean(max),mean=mean(mean,na.rm=TRUE),sum=mean(sum),n=n())
