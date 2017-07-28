@@ -69,7 +69,7 @@ for (h in Marks){
     STOCKday$Ctype[is.na(STOCKday$Ctype)]<-"X"
     qSTOCK<-q[q$V1%in%symbols[j],]
     Run<-c(Run,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"streak"]))
-    Day<-c(Day,as.numeric(as.vector(qSTOCK$Ctype)))
+    Day<-c(Day,as.vector(qSTOCK$Ctype))
     Runpct<-c(Runpct,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"strkpct"]))
     Daypct<-c(Daypct,as.numeric(STOCKday[STOCKday$Ctype==qSTOCK$Ctype,"daypct"]))
     Runrf<-c(Runrf,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"strkrf"]))
@@ -85,18 +85,68 @@ for (h in Marks){
   DenDay<-cbind(DenDay,DayDen)
   print(h)
 }
+cols<-paste0(Marks,sep="x")
 PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun))
-names(PctupRun)<-c("symb","Run",as.character(Marks))
+names(PctupRun)<-c("symb","Run",cols)
+PctupRun[,cols]<-sapply(PctupRun[,cols],as.character)
+PctupRun[,cols]<-sapply(PctupRun[,cols],as.numeric)
 PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay))
-names(PctupDay)<-c("symb","Day",as.character(Marks))
+names(PctupDay)<-c("symb","Day",cols)
+PctupDay[,cols]<-sapply(PctupDay[,cols],as.character)
+PctupDay[,cols]<-sapply(PctupDay[,cols],as.numeric)
 PctrfRun<-as.data.frame(cbind(symbols,Run,PctrfRun))
-names(PctrfRun)<-c("symb","Run",as.character(Marks))
+names(PctrfRun)<-c("symb","Run",cols)
+PctrfRun[,cols]<-sapply(PctrfRun[,cols],as.character)
+PctrfRun[,cols]<-sapply(PctrfRun[,cols],as.numeric)
 PctrfDay<-as.data.frame(cbind(symbols,Day,PctrfDay))
-names(PctrfDay)<-c("symb","Day",as.character(Marks))
+names(PctrfDay)<-c("symb","Day",cols)
+PctrfDay[,cols]<-sapply(PctrfDay[,cols],as.character)
+PctrfDay[,cols]<-sapply(PctrfDay[,cols],as.numeric)
 DenRun<-as.data.frame(cbind(symbols,Run,DenRun))
-names(DenRun)<-c("symb","Run",as.character(Marks))
+names(DenRun)<-c("symb","Run",cols)
+DenRun[,cols]<-sapply(DenRun[,cols],as.character)
+DenRun[,cols]<-sapply(DenRun[,cols],as.numeric)
 DenDay<-as.data.frame(cbind(symbols,Day,DenDay))
-names(DenDay)<-c("symb","Day",as.character(Marks))
+names(DenDay)<-c("symb","Day",cols)
+DenDay[,cols]<-sapply(DenDay[,cols],as.character)
+DenDay[,cols]<-sapply(DenDay[,cols],as.numeric)
 
-  
-  
+PctupRun$min<-0
+PctupDay$min<-0
+PctupRun$max<-0
+PctupDay$max<-0
+PctupRun$mean<-0
+PctupDay$mean<-0
+for (j in 1:length(symbols)){
+  PctupRun$min[j]<-min(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
+  PctupDay$min[j]<-min(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
+  PctupRun$max[j]<-max(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
+  PctupDay$max[j]<-max(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
+  PctupRun$mean[j]<-mean(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
+  PctupDay$mean[j]<-mean(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
+}
+PctupRun$min[is.infinite(PctupRun$min)]<-0
+PctupDay$min[is.infinite(PctupDay$min)]<-0
+PctupRun$max[is.infinite(PctupRun$max)]<-0
+PctupDay$max[is.infinite(PctupDay$max)]<-0
+PctupRun$mean[is.nan(PctupRun$mean)]<-0
+PctupDay$mean[is.nan(PctupDay$mean)]<-0
+
+checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$max>=.6&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
+checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$max>=.6&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
+# checkRR<-as.vector()
+# checkRD<-as.vector()
+checkDR<-as.vector(DenRun$symb[DenRun$`65x`>=8&DenRun$`3000x`>=50])
+checkDD<-as.vector(DenDay$symb[DenDay$`65x`>=8&DenDay$`3000x`>=50])
+checkU<-checkUR[checkUR%in%checkUD]
+checkD<-checkDD[checkDD%in%checkDR]  
+symbolsWatchRD<-checkU[checkU%in%checkD]
+symbolsWatchD<-checkUD[checkUD%in%checkDD]
+symbolsWatchR<-checkUR[checkUR%in%checkDR]
+
+WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
+WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatchR,]
+WatchDay$both<-0
+WatchRun$both<-0
+WatchDay$both[WatchDay$symb%in%symbolsWatchRD]<-1
+WatchRun$both[WatchRun$symb%in%symbolsWatchRD]<-1
