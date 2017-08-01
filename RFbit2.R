@@ -2,6 +2,7 @@ library(quantmod)
 library(dplyr)
 library(data.table)
 library(beepr)
+symbolsDS<-c("DIA","SPY")
 symbols <-symbolsSP
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
@@ -10,8 +11,10 @@ for (i in l:length(symbols)){
 }
 ptm<-proc.time()
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
-History<-NULL
-for (z in 30:2){
+Historyday<-NULL
+Historyrun<-NULL
+reset<-1
+for (z in 70:2){
   bit<-z
   PctupRun<-NULL
   PctupDay<-NULL
@@ -92,7 +95,7 @@ for (z in 30:2){
     PctrfDay<-cbind(PctrfDay,Dayrf)
     DenRun<-cbind(DenRun,RunDen)
     DenDay<-cbind(DenDay,DayDen)
-    print(h)
+    # print(h)
   }
   cols<-paste0(Marks,sep="x")
   PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun))
@@ -155,10 +158,10 @@ for (z in 30:2){
   
   WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
   WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatchR,]
-  WatchDay$both<-0
-  WatchRun$both<-0
-  WatchDay$both[WatchDay$symb%in%symbolsWatchRD]<-1
-  WatchRun$both[WatchRun$symb%in%symbolsWatchRD]<-1
+  # WatchDay$both<-0
+  # WatchRun$both<-0
+  # WatchDay$both[WatchDay$symb%in%symbolsWatchRD]<-1
+  # WatchRun$both[WatchRun$symb%in%symbolsWatchRD]<-1
   
   Tomorrow<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(Tomorrow)<-c("V1","Last","Change","Ctype","sign")
@@ -179,14 +182,49 @@ for (z in 30:2){
   TomorrowWatchR<-TomorrowWatchR[order(TomorrowWatchR$V1),]
   
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
-  print("Day")
-  print(sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0)/length(TomorrowWatchD$sign))
-  print("Run")
-  print(sum(sign(as.numeric(as.vector(TomorrowWatchR$sign)))>0)/length(TomorrowWatchR$sign))
+  # print("Day")
+  # print(sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0)/length(TomorrowWatchD$sign))
+  # Dayup<-(Dayup+sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0))*reset
+  # Daytot<-(Daytot+length(TomorrowWatchD$sign))*reset
+  # Dayprof<-(Dayprof+sum(TomorrowWatchD$Change))*reset
+  # print(sum(sign(PctupDay$mean-.5)==sign(Tomorrow$Change)))
+  # Dayzmean<-(Dayzmean+sum(sign(PctupDay$mean-.5)==sign(Tomorrow$Change)))*reset
+  # Dayzmin<-(Dayzmin+sum(sign(PctupDay$min-.5)==sign(Tomorrow$Change)))*reset
+  # Dayzmax<-(Dayzmax+sum(sign(PctupDay$max-.5)==sign(Tomorrow$Change)))*reset
+  # Dayz65x<-(Dayz65x+sum(sign(PctupDay$`65x`-.5)==sign(Tomorrow$Change)))*reset
+  # Dayz3000x<-(Dayz3000x+sum(sign(PctupDay$`3000x`-.5)==sign(Tomorrow$Change)))*reset
+  # print(sum(TomorrowWatchD$Change))
+  # print("Run")
+  # Runup<-(Runup+sum(sign(as.numeric(as.vector(TomorrowWatchR$sign)))>0))*reset
+  # Runtot<-(Runtot+length(TomorrowWatchR$sign))*reset
+  # Runprof<-(Runprof+sum(TomorrowWatchR$Change))*reset
+  # print(sum(sign(as.numeric(as.vector(TomorrowWatchR$sign)))>0)/length(TomorrowWatchR$sign))
+  # print(sum(sign(PctupRun$mean-.5)==sign(Tomorrow$Change)))
+  # Runzmean<-(Runzmean+sum(sign(PctupRun$mean-.5)==sign(Tomorrow$Change)))*reset
+  # Runzmin<-(Runzmin+sum(sign(PctupRun$min-.5)==sign(Tomorrow$Change)))*reset
+  # Runzmax<-(Runzmax+sum(sign(PctupRun$max-.5)==sign(Tomorrow$Change)))*reset
+  # Runz65x<-(Runz65x+sum(sign(PctupRun$`65x`-.5)==sign(Tomorrow$Change)))*reset
+  # Runz3000x<-(Runz3000x+sum(sign(PctupRun$`3000x`-.5)==sign(Tomorrow$Change)))*reset
+  # print(sum(TomorrowWatchR$Change))
+  # print(sum(sign(PctupDay$mean-.5)==sign(Tomorrow$Change))>=sum(sign(PctupRun$mean-.5)==sign(Tomorrow$Change)))
 
-  # Print<-cbind(select(TrendupWatch2,V1,min,max,mean),select(TrendscWatch,sum), select(FinalWatch,Next.x),select(TomorrowWatch,V2,V3), date=row.names(as.data.frame(STOCK2))[nrow(STOCK2)-bit+1])
-  # History<-rbind(History,Print)
+
+  Printday<-cbind(merge(select(WatchDay,symb,Day,min,max,mean),select(TomorrowWatchD,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Historyday<-rbind(Historyday,Printday)
+  Printrun<-cbind(merge(select(WatchRun,symb,Run,min,max,mean),select(TomorrowWatchR,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Historyrun<-rbind(Historyrun,Printrun)
   # print((proc.time()-ptm)/60)
 }
 (proc.time()-ptm)/60
 
+HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistDayAgg2<-Historyday%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistRunAgg<-Historyrun%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistRunAgg2<-Historyrun%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+
+STOCK$c2<-STOCK$pCHANGE
+
+STOCK$c2[STOCK$c2>2]<-2
+STOCK$c2[STOCK$c2<(-2)]<--2
+table(round(STOCK$c2[STOCK$lag==1],1))
+table(round(STOCK$c2[STOCK$lag==0],1))
