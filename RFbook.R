@@ -1,4 +1,4 @@
-symbolsToday<-c("XOM")
+symbolsToday<-c("STZ")
 symbol<-symbolsToday[1]
 # q<-getQuote(symbol)
 # q$V1<-rownames(q)
@@ -6,7 +6,7 @@ symbol<-symbolsToday[1]
 #       labels = c("-5","-2","-1","-.75","-.5","-.25","-.1","-0","0",".1",".25",".5",".75","1","2","5"))
 # q$sign<-sign(q$Change)
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
-quote<--0.05
+quote<-.32
 Daypct<-NULL
 for (h in Marks){
   Last<-h
