@@ -6,7 +6,7 @@ symbolsETF<-c("DIA","SPY","FAS","QQQ","SPXL","SOCL","IHF","GXF","IGV","BJK","RYH
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
 symbolsH<-c("AVB","PNW","SO","TSS","WAT","CTSH","KO","DIA","SPY")
-symbols<-"DIA"
+symbols<-"COO"
 symbols <-symbolsSP
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 l<-1
@@ -41,42 +41,18 @@ for (h in Marks){
   Run<-NULL
   for (j in 1:length(symbols)){
     Last<-h
-    STOCK<-get(symbols[j])
-    colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
-    if(length(STOCK$open)<Last){
-      Last<-length(STOCK$open)
-    }
-    STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
-    STOCK$row<-1:length(STOCK$open)
-    STOCK$pCHANGE<-((STOCK$close)-lag(STOCK$close))/lag(STOCK$close)*100
-    STOCK$UP<-0
-    STOCK$UP[sign(STOCK$pCHANGE)==1]<-1
-    streak<-data.frame(unclass(rle(as.vector(STOCK$UP))))
-    streak$values[streak$values==0]<--1
-    streak$tvalue<-streak$lengths*streak$values
-    y<-as.vector(NULL)
-    for(i in 1:length(streak$lengths)){
-      y<-c(y,(sign(streak$tvalue[i]):streak$tvalue[i]))
-    }
-    STOCK<-cbind(STOCK,y)
-    STOCK<-as.data.frame(STOCK)
-    STOCK$lag<-lead(STOCK$UP,1)
-    STOCK$rflag<-lead(STOCK$pCHANGE)
-    STOCK$Ctype<-as.vector(cut(STOCK$pCHANGE,breaks = c(-Inf,-5,-2,-1,-.75,-.5,-.25,-.1,0,.1,.25,.5,.75,1,2,5,Inf),
-      labels = c("-5","-2","-1","-.75","-.5","-.25","-.1","-0","0",".1",".25",".5",".75","1","2","5")))
-    colnames(STOCK)[colnames(STOCK)=="..2"]<-"streak"
+    STOCK<-stock()
     STOCKstreak<-STOCK%>%group_by(streak)%>%summarise(strkrf=mean(rflag,na.rm=TRUE),strkup=sum(lag,na.rm=TRUE),strkn=n(),strkpct=strkup/strkn)
-    STOCKday<-STOCK%>%group_by(Ctype)%>%summarise(dayrf=mean(rflag,na.rm=TRUE),dayup=sum(lag,na.rm=TRUE),dayn=n(),daypct=dayup/dayn)
-    STOCKday$Ctype[is.na(STOCKday$Ctype)]<-"X"
     qSTOCK<-q[q$V1%in%symbols[j],]
-    Run<-c(Run,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"streak"]))
-    Day<-c(Day,as.vector(qSTOCK$Ctype))
-    Runpct<-c(Runpct,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"strkpct"]))
-    Daypct<-c(Daypct,as.numeric(STOCKday[STOCKday$Ctype==qSTOCK$Ctype,"daypct"]))
-    Runrf<-c(Runrf,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"strkrf"]))
-    Dayrf<-c(Dayrf,as.numeric(STOCKday[STOCKday$Ctype==qSTOCK$Ctype,"dayrf"]))
-    RunDen<-c(RunDen,as.numeric(STOCKstreak[STOCKstreak$streak==(qSTOCK$sign+(STOCK$streak[length(STOCK$streak)]*as.numeric(sign(STOCK$streak[length(STOCK$streak)])==qSTOCK$sign))),"strkn"]))
-    DayDen<-c(DayDen,as.numeric(STOCKday[STOCKday$Ctype==qSTOCK$Ctype,"dayn"]))
+    quote<-qSTOCK$Change/qSTOCK$Last*100
+    Run<-c(Run,sum(as.numeric(STOCKstreak$streak[runtd()])))
+    Day<-c(Day,round(quote,3))
+    Runpct<-c(Runpct,sum(as.numeric(STOCKstreak$strkpct[runtd()])))
+    Daypct<-c(Daypct,mean(STOCK$lag[between(STOCK$pCHANGE,drange()[1],drange()[2])],na.rm = TRUE))
+    Runrf<-c(Runrf,sum(as.numeric(STOCKstreak$strkrf[runtd()])))
+    Dayrf<-c(Dayrf,mean(STOCK$rflag[between(STOCK$pCHANGE,drange()[1],drange()[2])],na.rm = TRUE))
+    RunDen<-c(RunDen,sum(as.numeric(STOCKstreak$strkn[runtd()])))
+    DayDen<-c(DayDen,sum(!is.na(STOCK$lag[between(STOCK$pCHANGE,drange()[1],drange()[2])])))
   }
   PctupRun<-cbind(PctupRun,Runpct)
   PctupDay<-cbind(PctupDay,Daypct)
