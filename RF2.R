@@ -443,7 +443,6 @@ symbolsSP<-c(
 "MKC",
 "MCD",
 "MCK",
-"MJN",
 "MDT",
 "MRK",
 "MET",

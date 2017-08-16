@@ -38,7 +38,15 @@ STREAK<-function(){
   }
   return(y)
 }
+symbols2<-symbolsSP
+for (j in 1:length(symbols2)){
+  check<-nrow(get(symbols2[j]))
+  if (check<100){
+  symbols2<-symbols2[!(symbols2 %in% symbols2[j])]
+  }
+}
 
-
-
-
+Historyrun$conc<-paste(Historyrun$symb,Historyrun$date)
+Historyday$conc<-paste(Historyday$symb,Historyday$date)
+test<-left_join(Historyday,Historyrun,by="conc")
+table(test$sign.y)

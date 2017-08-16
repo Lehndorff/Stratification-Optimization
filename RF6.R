@@ -5,6 +5,7 @@ library(beepr)
 symbolsETF<-c("DIA","SPY","FAS","QQQ","SPXL","SOCL","IHF","GXF","IGV","BJK","RYH","MTK","IYH","XLF","XLV","FEZ","RPG","ITB","ITA","VONG","PPA","IWF","VOOG","SPXS","UDOW","SH")
 symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD","IBM","INTC",
   "JNJ","JPM","MCD","MMM","MRK","MSFT","NKE","PFE","PG","TRV","UNH","UTX","V","VZ","WMT","DIS")
+symbolsSP<-as.vector(read.csv("~/desktop/symbolsSP.csv")[,2])
 symbolsH<-c("AVB","PNW","SO","TSS","WAT","CTSH","KO","DIA","SPY")
 symbols<-"COO"
 symbols <-symbolsSP
@@ -109,8 +110,8 @@ PctupDay$max[is.infinite(PctupDay$max)]<-0
 PctupRun$mean[is.nan(PctupRun$mean)]<-0
 PctupDay$mean[is.nan(PctupDay$mean)]<-0
 
-checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$max>=.6&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
-checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$max>=.6&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
+checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$`65x`>.65&(PctupRun$`65x`-PctupRun$`124x`)>-.05&PctupRun$max>=.65&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
+checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$`65x`>.65&(PctupDay$`65x`-PctupDay$`124x`)>-.05&PctupDay$max>=.65&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
 # checkRR<-as.vector()
 # checkRD<-as.vector()
 checkDR<-as.vector(DenRun$symb[DenRun$`65x`>=8&DenRun$`3000x`>=50])

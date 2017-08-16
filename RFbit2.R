@@ -3,7 +3,7 @@ library(dplyr)
 library(data.table)
 library(beepr)
 symbolsDS<-c("DIA","SPY")
-symbols <-symbolsSP
+symbols <-symbols2
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
@@ -13,9 +13,9 @@ ptm<-proc.time()
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
 Historyday<-NULL
 Historyrun<-NULL
-RunOn<-FALSE
+RunOn<-TRUE
 reset<-1
-for (z in 120:2){
+for (z in 100:95){
   bit<-z
   PctupRun<-NULL
   PctupDay<-NULL
@@ -126,13 +126,13 @@ PctupDay$max[is.infinite(PctupDay$max)]<-0
 PctupDay$mean[is.nan(PctupDay$mean)]<-0
 
 if(RunOn==TRUE){
-  checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$max>=.6&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
+  checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$`65x`>.65&(PctupRun$`65x`-PctupRun$`124x`)>-.05&PctupRun$max>=.65&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
   checkDR<-as.vector(DenRun$symb[DenRun$`65x`>=8&DenRun$`3000x`>=50])
   checkU<-checkUR[checkUR%in%checkUD]
   symbolsWatchR<-checkUR[checkUR%in%checkDR]
   WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatchR,]
 }
-checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$max>=.6&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
+checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$`65x`>.65&(PctupDay$`65x`-PctupDay$`124x`)>-.05&PctupDay$max>=.65&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
 checkDD<-as.vector(DenDay$symb[DenDay$`65x`>=8&DenDay$`3000x`>=50])
 checkD<-checkDD[checkDD%in%checkDR]  
 symbolsWatchRD<-checkU[checkU%in%checkD]
@@ -164,6 +164,7 @@ WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
   
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   print(sum(Printday$sign[Printday$sign==1])/length(Printday$sign))
+  # print(sum(Printrun$sign[Printrun$sign==1])/length(Printrun$sign))
   # print("Day")
   # print(sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0)/length(TomorrowWatchD$sign))
   # Dayup<-(Dayup+sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0))*reset
@@ -193,6 +194,7 @@ WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
   # print((proc.time()-ptm)/60)
 }
 (proc.time()-ptm)/60
+beep(2)
 
 HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistDayAgg2<-Historyday%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
