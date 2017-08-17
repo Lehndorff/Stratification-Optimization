@@ -46,7 +46,3 @@ for (j in 1:length(symbols2)){
   }
 }
 
-Historyrun$conc<-paste(Historyrun$symb,Historyrun$date)
-Historyday$conc<-paste(Historyday$symb,Historyday$date)
-test<-left_join(Historyday,Historyrun,by="conc")
-table(test$sign.y)

@@ -15,7 +15,7 @@ Historyday<-NULL
 Historyrun<-NULL
 RunOn<-TRUE
 reset<-1
-for (z in 100:95){
+for (z in 40:26){
   bit<-z
   PctupRun<-NULL
   PctupDay<-NULL
@@ -128,14 +128,14 @@ PctupDay$mean[is.nan(PctupDay$mean)]<-0
 if(RunOn==TRUE){
   checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$`65x`>.65&(PctupRun$`65x`-PctupRun$`124x`)>-.05&PctupRun$max>=.65&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
   checkDR<-as.vector(DenRun$symb[DenRun$`65x`>=8&DenRun$`3000x`>=50])
-  checkU<-checkUR[checkUR%in%checkUD]
+  # checkU<-checkUR[checkUR%in%checkUD]
   symbolsWatchR<-checkUR[checkUR%in%checkDR]
   WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatchR,]
 }
 checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$`65x`>.65&(PctupDay$`65x`-PctupDay$`124x`)>-.05&PctupDay$max>=.65&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])
 checkDD<-as.vector(DenDay$symb[DenDay$`65x`>=8&DenDay$`3000x`>=50])
-checkD<-checkDD[checkDD%in%checkDR]  
-symbolsWatchRD<-checkU[checkU%in%checkD]
+# checkD<-checkDD[checkDD%in%checkDR]  
+# symbolsWatchRD<-checkU[checkU%in%checkD]
 symbolsWatchD<-checkUD[checkUD%in%checkDD]
 WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
 
@@ -203,9 +203,7 @@ HistRunAgg<-Historyrun%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),
 HistRunAgg2<-Historyrun%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistRunAgg3<-Historyrun%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 
-STOCK$c2<-STOCK$pCHANGE
-
-STOCK$c2[STOCK$c2>2]<-2
-STOCK$c2[STOCK$c2<(-2)]<--2
-table(round(STOCK$c2[STOCK$lag==1],1))
-table(round(STOCK$c2[STOCK$lag==0],1))
+Historyrun$conc<-paste(Historyrun$symb,Historyrun$date)
+Historyday$conc<-paste(Historyday$symb,Historyday$date)
+Histboth<-left_join(Historyday,Historyrun,by="conc")
+table(Histboth$sign.y)
