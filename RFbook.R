@@ -1,4 +1,4 @@
-symbolsToday<-c("STZ")
+symbolsToday<-c("AAPL")
 symbol<-symbolsToday[1]
 # q<-getQuote(symbol)
 # q$V1<-rownames(q)
@@ -6,8 +6,9 @@ symbol<-symbolsToday[1]
 #       labels = c("-5","-2","-1","-.75","-.5","-.25","-.1","-0","0",".1",".25",".5",".75","1","2","5"))
 # q$sign<-sign(q$Change)
 Marks<-c(65,124,189,253,337,420,505,1008,1511,3000)
-quote<-.32
+quote<-.22
 Daypct<-NULL
+DayDen<-NULL
 for (h in Marks){
   Last<-h
   STOCK<-get(symbol)
@@ -40,5 +41,7 @@ for (h in Marks){
   # STOCKday<-STOCK%>%group_by(Ctype)%>%summarise(dayrf=mean(rflag,na.rm=TRUE),dayup=sum(lag,na.rm=TRUE),dayn=n(),daypct=dayup/dayn)
   # STOCKday$Ctype[is.na(STOCKday$Ctype)]<-"X"
   Daypct<-c(Daypct,mean(STOCK$lag[between(STOCK$pCHANGE,sort(c(quote*.8+(-.01*sign(quote)),quote*1.2+(.01*sign(quote))))[1],sort(c(quote*.8+(-.01*sign(quote)),quote*1.2+(.01*sign(quote))))[2])],na.rm = TRUE))
+  DayDen<-c(DayDen,sum(!is.na(STOCK$lag[between(STOCK$pCHANGE,drange()[1],drange()[2])])))
 }
 Daypct
+DayDen
