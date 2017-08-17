@@ -95,6 +95,8 @@ PctupRun$max<-0
 PctupDay$max<-0
 PctupRun$mean<-0
 PctupDay$mean<-0
+PctupRun$sd<-0
+PctupDay$sd<-0
 for (j in 1:length(symbols)){
   PctupRun$min[j]<-min(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
   PctupDay$min[j]<-min(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
@@ -102,6 +104,8 @@ for (j in 1:length(symbols)){
   PctupDay$max[j]<-max(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
   PctupRun$mean[j]<-mean(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
   PctupDay$mean[j]<-mean(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
+  PctupRun$sd[j]<-sd(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
+  PctupDay$sd[j]<-sd(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
 }
 PctupRun$min[is.infinite(PctupRun$min)]<-0
 PctupDay$min[is.infinite(PctupDay$min)]<-0
@@ -109,6 +113,8 @@ PctupRun$max[is.infinite(PctupRun$max)]<-0
 PctupDay$max[is.infinite(PctupDay$max)]<-0
 PctupRun$mean[is.nan(PctupRun$mean)]<-0
 PctupDay$mean[is.nan(PctupDay$mean)]<-0
+PctupRun$sd[is.nan(PctupRun$sd)]<-0
+PctupDay$sd[is.nan(PctupDay$sd)]<-0
 
 checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$`65x`>.65&(PctupRun$`65x`-PctupRun$`124x`)>-.05&PctupRun$max>=.65&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
 checkUD<-as.vector(PctupDay$symb[PctupDay$min>.5&PctupDay$`65x`>.65&(PctupDay$`65x`-PctupDay$`124x`)>-.05&PctupDay$max>=.65&(PctupDay$min==PctupDay$`3000x`|PctupDay$max==PctupDay$`65x`)])

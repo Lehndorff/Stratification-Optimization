@@ -15,7 +15,7 @@ Historyday<-NULL
 Historyrun<-NULL
 RunOn<-TRUE
 reset<-1
-for (z in 40:26){
+for (z in 33:26){
   bit<-z
   PctupRun<-NULL
   PctupDay<-NULL
@@ -102,28 +102,34 @@ if(RunOn==TRUE){
   PctupRun$min<-0
   PctupRun$max<-0
   PctupRun$mean<-0
+  PctupRun$sd<-0
 }
 PctupDay$min<-0
 PctupDay$max<-0
 PctupDay$mean<-0
+PctupDay$sd<-0
 for (j in 1:length(symbols)){
   if(RunOn==TRUE){
     PctupRun$min[j]<-min(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
     PctupRun$max[j]<-max(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
     PctupRun$mean[j]<-mean(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
+    PctupRun$sd[j]<-sd(as.numeric(PctupRun[j,cols]),na.rm=TRUE)
   }
   PctupDay$min[j]<-min(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
   PctupDay$max[j]<-max(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
   PctupDay$mean[j]<-mean(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
+  PctupDay$sd[j]<-sd(as.numeric(PctupDay[j,cols]),na.rm=TRUE)
 }
 if(RunOn==TRUE){
   PctupRun$min[is.infinite(PctupRun$min)]<-0
   PctupRun$max[is.infinite(PctupRun$max)]<-0
   PctupRun$mean[is.nan(PctupRun$mean)]<-0
+  PctupRun$sd[is.nan(PctupRun$sd)]<-0
 }
 PctupDay$min[is.infinite(PctupDay$min)]<-0
 PctupDay$max[is.infinite(PctupDay$max)]<-0
 PctupDay$mean[is.nan(PctupDay$mean)]<-0
+PctupDay$sd[is.nan(PctupDay$sd)]<-0
 
 if(RunOn==TRUE){
   checkUR<-as.vector(PctupRun$symb[PctupRun$min>.5&PctupRun$`65x`>.65&(PctupRun$`65x`-PctupRun$`124x`)>-.05&PctupRun$max>=.65&(PctupRun$min==PctupRun$`3000x`|PctupRun$max==PctupRun$`65x`)])
@@ -154,17 +160,17 @@ WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
   if(RunOn==TRUE){
     TomorrowWatchR<-Tomorrow[Tomorrow$V1 %in% symbolsWatchR,]
     TomorrowWatchR<-TomorrowWatchR[order(TomorrowWatchR$V1),]
-    Printrun<-cbind(merge(select(WatchRun,symb,Run,min,max,mean),select(TomorrowWatchR,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+    Printrun<-cbind(merge(select(WatchRun,symb,Run,min,max,mean,sd),select(TomorrowWatchR,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
     Historyrun<-rbind(Historyrun,Printrun)
   }
   TomorrowWatchD<-Tomorrow[Tomorrow$V1 %in% symbolsWatchD,]
   TomorrowWatchD<-TomorrowWatchD[order(TomorrowWatchD$V1),]
-  Printday<-cbind(merge(select(WatchDay,symb,Day,min,max,mean),select(TomorrowWatchD,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Printday<-cbind(merge(select(WatchDay,symb,Day,min,max,mean,sd),select(TomorrowWatchD,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   Historyday<-rbind(Historyday,Printday)
   
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   print(sum(Printday$sign[Printday$sign==1])/length(Printday$sign))
-  # print(sum(Printrun$sign[Printrun$sign==1])/length(Printrun$sign))
+  print(sum(Printrun$sign[Printrun$sign==1])/length(Printrun$sign))
   # print("Day")
   # print(sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0)/length(TomorrowWatchD$sign))
   # Dayup<-(Dayup+sum(sign(as.numeric(as.vector(TomorrowWatchD$sign)))>0))*reset
@@ -196,10 +202,10 @@ WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatchD,]
 (proc.time()-ptm)/60
 beep(2)
 
-HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),sd=mean(sd),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistDayAgg2<-Historyday%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistDayAgg3<-Historyday%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
-HistRunAgg<-Historyrun%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistRunAgg<-Historyrun%>%group_by(sign)%>%summarise(min=mean(min),max=mean(max),mean=mean(mean),sd=mean(sd),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistRunAgg2<-Historyrun%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistRunAgg3<-Historyrun%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 
