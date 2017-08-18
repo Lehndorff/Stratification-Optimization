@@ -21,22 +21,15 @@ q<-getQuote(symbols)
 q$V1<-rownames(q)
 q$sign<-sign(q$Change)
 
-# PctupRun<-NULL
 PctupDay<-NULL
-# PctrfRun<-NULL
 PctrfDay<-NULL
-# DenRun<-NULL
 DenDay<-NULL
 Day<-NULL
 for (j in 1:length(symbols)){
-  # Runpct<-NULL
   Daypct<-NULL
-  # Runrf<-NULL
   Dayrf<-NULL
-  # RunDen<-NULL
   DayDen<-NULL
-  # Run<-NULL
-  STOCK<-stock(RUN = FALSE)
+  STOCK<-stock(RUN = FALSE,Last = 3000)
   qSTOCK<-q[q$V1%in%symbols[j],]
   quote<-qSTOCK$Change/qSTOCK$Last*100
   STOCKtd<-STOCK[between(STOCK$pCHANGE,drange()[1],drange()[2]),]
@@ -46,16 +39,6 @@ for (j in 1:length(symbols)){
   STOCKtd$running<-cummean(STOCKtd$lag)
   PctupDay<-c(PctupDay,mean(STOCKtd$running,na.rm = TRUE))
   Day<-c(Day,round(quote,3))
-  # STOCKstreak<-STOCK%>%group_by(streak)%>%summarise(strkrf=mean(rflag,na.rm=TRUE),strkup=sum(lag,na.rm=TRUE),strkn=n(),strkpct=strkup/strkn)
-
-  # Run<-c(Run,sum(as.numeric(STOCKstreak$streak[runtd()])))
-  # Day<-c(Day,round(quote,3))
-  # Runpct<-c(Runpct,sum(as.numeric(STOCKstreak$strkpct[runtd()])))
-  # Daypct<-c(Daypct,mean(STOCK$lag[between(STOCK$pCHANGE,drange()[1],drange()[2])],na.rm = TRUE))
-  # Runrf<-c(Runrf,sum(as.numeric(STOCKstreak$strkrf[runtd()])))
-  # Dayrf<-c(Dayrf,mean(STOCK$rflag[between(STOCK$pCHANGE,drange()[1],drange()[2])],na.rm = TRUE))
-  # RunDen<-c(RunDen,sum(as.numeric(STOCKstreak$strkn[runtd()])))
-  # DayDen<-c(DayDen,sum(!is.na(STOCK$lag[between(STOCK$pCHANGE,drange()[1],drange()[2])])))
 }
 
 PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay))

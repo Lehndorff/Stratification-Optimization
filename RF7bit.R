@@ -7,9 +7,10 @@ for (i in l:length(symbols)){
 ptm<-proc.time()
 Historyday<-NULL
 RunOn<-FALSE
-for (z in 10:2){
+for (z in 5:2){
   bit<-z
   PctupDay<-NULL
+  Day<-NULL
   q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(q)<-c("V1","Last","Change","Ctype","sign")
   q$V1<-symbols
@@ -22,13 +23,6 @@ for (z in 10:2){
   rownames(q)<-q$V1
   q$sign<-sign(q$Change)
   for (j in 1:length(symbols)){
-    # Runpct<-NULL
-    Daypct<-NULL
-    # Runrf<-NULL
-    Dayrf<-NULL
-    # RunDen<-NULL
-    DayDen<-NULL
-    # Run<-NULL
     STOCK<-stock(RUN = FALSE)
     qSTOCK<-q[q$V1%in%symbols[j],]
     quote<-qSTOCK$Change/qSTOCK$Last*100
@@ -74,4 +68,4 @@ HistDayAgg2<-Historyday%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*
 HistDayAgg3<-Historyday%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 
 hist(Historyday$Pctup[Historyday$sign==-1],breaks = 0:100*.01)
-table(Historyday$sign[Historyday$Pctup>.8])
+table(Historyday$sign[Historyday$Pctup>.65])
