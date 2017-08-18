@@ -15,7 +15,7 @@ Historyday<-NULL
 Historyrun<-NULL
 RunOn<-TRUE
 reset<-1
-for (z in 33:26){
+for (z in 253:2){
   bit<-z
   PctupRun<-NULL
   PctupDay<-NULL
@@ -213,3 +213,7 @@ Historyrun$conc<-paste(Historyrun$symb,Historyrun$date)
 Historyday$conc<-paste(Historyday$symb,Historyday$date)
 Histboth<-left_join(Historyday,Historyrun,by="conc")
 table(Histboth$sign.y)
+Bothonly<-Histboth[!is.na(Histboth$sign.y),]
+BothonlyAgg<-Bothonly%>%group_by(sign.x)%>%summarise(min=mean(min.x),max=mean(max.x),mean=mean(mean.x),sd=mean(sd.x),In=sum(Last.x),prof=sum(Change.x),return=prof/In*100,n=n())
+BothonlyAgg2<-Bothonly%>%group_by(date.x)%>%summarise(up=(n()+mean(sign.x)*n())/(2*n()),In=sum(Last.x),prof=sum(Change.x),return=prof/In*100,n=n())
+BothonlyAgg3<-Bothonly%>%group_by(symb.x)%>%summarise(up=(n()+mean(sign.x)*n())/(2*n()),In=sum(Last.x),prof=sum(Change.x),return=prof/In*100,n=n())
