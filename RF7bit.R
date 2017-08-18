@@ -69,3 +69,18 @@ HistDayAgg3<-Historyday%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*
 
 hist(Historyday$Pctup[Historyday$sign==-1],breaks = 0:100*.01)
 table(Historyday$sign[Historyday$Pctup>.65])
+
+for (i in 50:90*.01){
+  HD2<-Historyday[Historyday$Pctup>i,]
+  HistDayAgg<-HD2%>%group_by(sign)%>%summarise(mean=mean(Pctup),sd=mean(sd),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+  HistDayAgg2<-HD2%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+  HistDayAgg3<-HD2%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())  
+  print(i)
+  as.numeric(sum(HistDayAgg2$prof)/max(HistDayAgg2$In)*100)
+  print(max(HistDayAgg2$In))
+  print(min(HistDayAgg2$prof))
+}
+
+i<-.68
+table(Historyday$sign[Historyday$Pctup>.72])
+sum(Historyday$sign[Historyday$Pctup>i]==1)/sum(Historyday$Pctup>i)
