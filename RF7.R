@@ -16,6 +16,14 @@ for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
   print(i)
 }
+for (j in l:length(symbols)){
+  check<-nrow(get(symbols[j]))
+  if (check<2000){
+    print(symbols[j])
+    print(check)
+    # loadSymbols(symbols[j])
+  }
+}
 beep()
 q<-getQuote(symbols)
 q$V1<-rownames(q)
