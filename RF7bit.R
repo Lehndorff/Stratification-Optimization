@@ -6,11 +6,10 @@ for (i in l:length(symbols)){
 }
 ptm<-proc.time()
 Historyday<-NULL
-RunOn<-FALSE
-for (z in 5:2){
+Historyrun<-NULL
+RunOn<-TRUE
+for (z in 253:2){
   bit<-z
-  PctupDay<-NULL
-  Day<-NULL
   q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(q)<-c("V1","Last","Change","Ctype","sign")
   q$V1<-symbols
@@ -22,27 +21,48 @@ for (z in 5:2){
   }
   rownames(q)<-q$V1
   q$sign<-sign(q$Change)
+  PctupDay<-NULL
+  PctupRun<-NULL
+  Pctn<-NULL
+  Day<-NULL
+  Run<-NULL
   for (j in 1:length(symbols)){
-    STOCK<-stock(RUN = FALSE)
+    STOCK<-stock(Last = 3000)
+    STOCK<-STOCK[1:(nrow(STOCK)-bit),]
     qSTOCK<-q[q$V1%in%symbols[j],]
     quote<-qSTOCK$Change/qSTOCK$Last*100
-    STOCKtd<-STOCK[between(STOCK$pCHANGE,drange()[1],drange()[2]),]
+    STOCKtd<-STOCK[(STOCK$streak==runtd2() & between(STOCK$pCHANGE,drange()[1],drange()[2])),]
     STOCKtd<-STOCKtd[rev(order(STOCKtd$row)),]
     STOCKtd<-STOCKtd[!is.na(STOCKtd$pCHANGE),]
     STOCKtd$lag[is.na(STOCKtd$lag)]<-sign(quote)
     STOCKtd$running<-cummean(STOCKtd$lag)
-    PctupDay<-c(PctupDay,mean(STOCKtd$running,na.rm = TRUE))
+    # STOCKtr<-STOCK[STOCK$streak==runtd2(),]
+    # STOCKtr<-STOCKtr[rev(order(STOCKtr$row)),]
+    # STOCKtr<-STOCKtr[!is.na(STOCKtr$pCHANGE),]
+    # STOCKtr$lag[is.na(STOCKtr$lag)]<-sign(quote)
+    # STOCKtr$running<-cummean(STOCKtr$lag)
+    PctupDay<-c(PctupDay,mean(STOCKtd$lag,na.rm = TRUE))
+    # PctupRun<-c(PctupRun,mean(STOCKtr$running,na.rm = TRUE))
+    Pctn<-c(Pctn,length(STOCKtd$running))
     Day<-c(Day,round(quote,3))
+    Run<-c(Run,runtd2())
   }
-  PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay))
-  names(PctupDay)<-c("symb","Day","Pctup")
-  PctupDay[,c("Day","Pctup")]<-sapply(PctupDay[,c("Day","Pctup")],as.character)
-  PctupDay[,c("Day","Pctup")]<-sapply(PctupDay[,c("Day","Pctup")],as.numeric)
+
+  PctupDay<-as.data.frame(cbind(symbols,Day,Run,PctupDay,Pctn))
+  names(PctupDay)<-c("symb","Day","Run","Pctup","Pctn")
+  PctupDay[,c("Day","Run","Pctup","Pctn")]<-sapply(PctupDay[,c("Day","Run","Pctup","Pctn")],as.character)
+  PctupDay[,c("Day","Run","Pctup","Pctn")]<-sapply(PctupDay[,c("Day","Run","Pctup","Pctn")],as.numeric)
   
+  # PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun))
+  # names(PctupRun)<-c("symb","Run","Pctup")
+  # PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.character)
+  # PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.numeric)
+
   symbolsWatch<-symbols
   # symbolsWatch<-PctupDay$symb[PctupDay$Pctup>.7]
   WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatch,]
-  
+  # WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatch,]
+
   Tomorrow<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 4))
   names(Tomorrow)<-c("V1","Last","Change","sign")
   Tomorrow$V1<-symbols
@@ -56,31 +76,36 @@ for (z in 5:2){
   Tomorrow$sign<-sign(Tomorrow$Change)
   TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
   TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
-  Printday<-cbind(merge(select(WatchDay,symb,Day,Pctup),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Printday<-cbind(merge(select(WatchDay,symb,Day,Run,Pctup,Pctn),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  # Printrun<-cbind(merge(select(WatchRun,symb,Run,Pctup),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  # Historyrun<-rbind(Historyrun,Printrun)
   Historyday<-rbind(Historyday,Printday)
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   print(sum(Printday$sign[Printday$sign==1])/length(Printday$sign))
 }
 (proc.time()-ptm)/60
 
-HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(mean=mean(Pctup),sd=mean(sd),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+HistDayAgg<-Historyday%>%group_by(sign)%>%summarise(mean=mean(Pctup),sd=mean(sd,na.rm=TRUE),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistDayAgg2<-Historyday%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 HistDayAgg3<-Historyday%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 
 hist(Historyday$Pctup[Historyday$sign==-1],breaks = 0:100*.01)
 table(Historyday$sign[Historyday$Pctup>.65])
 
-for (i in 50:90*.01){
-  HD2<-Historyday[Historyday$Pctup>i,]
-  HistDayAgg<-HD2%>%group_by(sign)%>%summarise(mean=mean(Pctup),sd=mean(sd),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
-  HistDayAgg2<-HD2%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
-  HistDayAgg3<-HD2%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())  
+for (i in 10:90*.01){
+  HD2<-Historyday[(Historyday$Pctup>i),]
+  HistDayAgg<-HD2%>%group_by(sign)%>%summarise(Pctup=mean(Pctup),sd=mean(Pctsd,na.rm=TRUE),min=mean(Pctmin),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+  HistDayAgg2<-HD2%>%group_by(date)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),Pctup=mean(Pctup),sd=mean(Pctsd,na.rm=TRUE),min=mean(Pctmin),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+  HistDayAgg3<-HD2%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),Pctup=mean(Pctup),sd=mean(Pctsd,na.rm=TRUE),min=mean(Pctmin),Day=mean(Day),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
   print(i)
-  as.numeric(sum(HistDayAgg2$prof)/max(HistDayAgg2$In)*100)
+  print(length(unique(HD2$date)))
+  print(sum(Historyday$sign[Historyday$Pctup>i]==1)/sum(Historyday$Pctup>i))
+  # print(sum(Historyday$sign[Historyday$Pctup>i&Historyday$Pctmin>.5]==1)/sum((Historyday$Pctup>i&Historyday$Pctmin>.5)))
+  print(as.numeric(sum(HistDayAgg2$prof)/max(HistDayAgg2$In)*100))
   print(max(HistDayAgg2$In))
   print(min(HistDayAgg2$prof))
 }
 
-i<-.68
-table(Historyday$sign[Historyday$Pctup>.72])
+i<-.75
+table(Historyday$sign[Historyday$Pctup>i])
 sum(Historyday$sign[Historyday$Pctup>i]==1)/sum(Historyday$Pctup>i)

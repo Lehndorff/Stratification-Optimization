@@ -21,7 +21,7 @@ for (j in l:length(symbols)){
   if (check<2000){
     print(symbols[j])
     print(check)
-    # loadSymbols(symbols[j])
+    loadSymbols(symbols[j])
   }
 }
 beep()
@@ -30,13 +30,10 @@ q$V1<-rownames(q)
 q$sign<-sign(q$Change)
 
 PctupDay<-NULL
-PctrfDay<-NULL
-DenDay<-NULL
+Pctupmin<-NULL
+Pctsd<-NULL
 Day<-NULL
 for (j in 1:length(symbols)){
-  Daypct<-NULL
-  Dayrf<-NULL
-  DayDen<-NULL
   STOCK<-stock(RUN = FALSE,Last = 3000)
   qSTOCK<-q[q$V1%in%symbols[j],]
   quote<-qSTOCK$Change/qSTOCK$Last*100
@@ -46,7 +43,40 @@ for (j in 1:length(symbols)){
   STOCKtd$lag[is.na(STOCKtd$lag)]<-sign(quote)
   STOCKtd$running<-cummean(STOCKtd$lag)
   PctupDay<-c(PctupDay,mean(STOCKtd$running,na.rm = TRUE))
+  Pctupmin<-c(Pctupmin,min(STOCKtd$running,na.rm = TRUE))
+  Pctsd<-c(Pctsd,sd(STOCKtd$running,na.rm = TRUE))
   Day<-c(Day,round(quote,3))
+}
+
+PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay,Pctupmin,Pctsd))
+names(PctupDay)<-c("symb","Day","Pctup","Pctmin","Pctsd")
+PctupDay[,c("Day","Pctup","Pctmin","Pctsd")]<-sapply(PctupDay[,c("Day","Pctup","Pctmin","Pctsd")],as.character)
+PctupDay[,c("Day","Pctup","Pctmin","Pctsd")]<-sapply(PctupDay[,c("Day","Pctup","Pctmin","Pctsd")],as.numeric)
+
+PctupDay<-NULL
+PctupRun<-NULL
+Pctsd<-NULL
+Day<-NULL
+Run<-NULL
+for (j in 1:length(symbols)){
+  STOCK<-stock(Last = 3000)
+  qSTOCK<-q[q$V1%in%symbols[j],]
+  quote<-qSTOCK$Change/qSTOCK$Last*100
+  STOCKtd<-STOCK[between(STOCK$pCHANGE,drange()[1],drange()[2]),]
+  STOCKtd<-STOCKtd[rev(order(STOCKtd$row)),]
+  STOCKtd<-STOCKtd[!is.na(STOCKtd$pCHANGE),]
+  STOCKtd$lag[is.na(STOCKtd$lag)]<-sign(quote)
+  STOCKtd$running<-cummean(STOCKtd$lag)
+  STOCKtr<-STOCK[STOCK$streak==runtd2(),]
+  STOCKtr<-STOCKtr[rev(order(STOCKtr$row)),]
+  STOCKtr<-STOCKtr[!is.na(STOCKtr$pCHANGE),]
+  STOCKtr$lag[is.na(STOCKtr$lag)]<-sign(quote)
+  STOCKtr$running<-cummean(STOCKtr$lag)
+  PctupDay<-c(PctupDay,mean(STOCKtd$running,na.rm = TRUE))
+  PctupRun<-c(PctupRun,mean(STOCKtr$running,na.rm = TRUE))
+  # Pctsd<-c(Pctsd,sd(STOCKtd$running,na.rm = TRUE))
+  Day<-c(Day,round(quote,3))
+  Run<-c(Run,runtd2())
 }
 
 PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay))
@@ -54,3 +84,7 @@ names(PctupDay)<-c("symb","Day","Pctup")
 PctupDay[,c("Day","Pctup")]<-sapply(PctupDay[,c("Day","Pctup")],as.character)
 PctupDay[,c("Day","Pctup")]<-sapply(PctupDay[,c("Day","Pctup")],as.numeric)
 
+PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun))
+names(PctupRun)<-c("symb","Run","Pctup")
+PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.character)
+PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.numeric)
