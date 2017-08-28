@@ -2,7 +2,7 @@ drange<-function(bound=.2,bump=.075){
   if (abs(quote)<.1){quote=.1*sign(quote)}
   return(sort(c(quote*(1-bound)+(-bump*sign(quote)),quote*(1+bound)+(bump*sign(quote)))))
 }
-stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE){
+stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0){
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){Last<-length(STOCK$open)}
   STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
@@ -24,6 +24,7 @@ stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE){
   STOCK$lag<-lead(STOCK$UP,1)
   STOCK$rflag<-lead(STOCK$pCHANGE)
   colnames(STOCK)[colnames(STOCK)=="..2"]<-"streak"
+  STOCK<-STOCK[1:(nrow(STOCK)-bit),]
   return(STOCK)
 }
 
@@ -50,3 +51,13 @@ for (j in 1:length(symbols2)){
   }
 }
 Historyday<-Historyday[Historyday$symb %in% symbols2,]
+STOCK$ave50<-NA
+for (i in 50:length(STOCK$close)){
+  STOCK$ave50[i]<-mean(STOCK$close[(i-49):i])
+}
+STOCK$bullsi<-sign(STOCK$close-STOCK$ave50)
+STOCK$bull<-STOCK$close-STOCK$ave50
+STOCK$peak<-0
+STOCK$peak[findPeaks(STOCK$close)]<-1
+STOCK$vall<-0
+STOCK$vall[findValleys(STOCK$close)]<-1

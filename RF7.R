@@ -18,7 +18,7 @@ for (i in l:length(symbols)){
 }
 for (j in l:length(symbols)){
   check<-nrow(get(symbols[j]))
-  if (check<2000){
+  if (check<1000){
     print(symbols[j])
     print(check)
     loadSymbols(symbols[j])
@@ -88,3 +88,13 @@ PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun))
 names(PctupRun)<-c("symb","Run","Pctup")
 PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.character)
 PctupRun[,c("Run","Pctup")]<-sapply(PctupRun[,c("Run","Pctup")],as.numeric)
+
+find<-c(STOCK$UP[(length(STOCK$UP)-3):length(STOCK$UP)],as.numeric(qSTOCK$sign==1))
+STOCK$match<-0
+for (j in 1:length(STOCK$UP)){
+  if(sum(as.vector(STOCK$UP[j:(j+4)])==find)==5){
+    STOCK$match[j+4]<-1
+  }
+}
+table(STOCK$match)
+table(STOCK$lag[STOCK$match==1])
