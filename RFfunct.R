@@ -3,10 +3,12 @@ drange<-function(bound=.2,bump=.075){
   return(sort(c(quote*(1-bound)+(-bump*sign(quote)),quote*(1+bound)+(bump*sign(quote)))))
 }
 stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0){
+  STOCK<-na.omit(STOCK)
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){Last<-length(STOCK$open)}
   STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
   STOCK$row<-1:length(STOCK$open)
+  STOCK<-STOCK[STOCK$row>max(0,STOCK$row[STOCK$volume<=1]),]
   STOCK$pCHANGE<-((STOCK$close)-lag(STOCK$close))/lag(STOCK$close)*100
   STOCK$UP<-0
   STOCK$UP[sign(STOCK$pCHANGE)==1]<-1
@@ -44,10 +46,12 @@ STREAK<-function(){
   return(y)
 }
 symbols2<-symbolsSP
-for (j in 1:length(symbols2)){
-  check<-nrow(get(symbols2[j]))
-  if (check<250){
-  symbols2<-symbols2[!(symbols2 %in% symbols2[j])]
+for (j in 1:length(symbolsSP)){
+  stockcheck<-get(symbolsSP[j])
+  colnames(stockcheck)<-c("open","high","low","close","volume","adjusted")
+  stockcheck$row<-1:length(stockcheck$open)
+  if (nrow(stockcheck)<507 | stockcheck$volume[length(stockcheck$volume)]<=1|sum(is.na(stockcheck))>0|(length(stockcheck$row)-max(0,stockcheck$row[stockcheck$volume<=1]))<507){
+  symbols2<-symbols2[!(symbols2 %in% symbolsSP[j])]
   }
 }
 Historyday<-Historyday[Historyday$symb %in% symbols2,]

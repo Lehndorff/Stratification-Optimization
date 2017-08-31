@@ -8,7 +8,7 @@ symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD
 symbolsSP<-as.vector(read.csv("~/desktop/symbolsSP.csv")[,2])
 symbolsH<-c("AVB","PNW","SO","TSS","WAT","CTSH","KO","DIA","SPY")
 symbols<-"COO"
-symbols <-symbolsSP
+symbols <-symbols2
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 l<-1
 l<-match("MMM",symbols)
@@ -98,3 +98,28 @@ for (j in 1:length(STOCK$UP)){
 }
 table(STOCK$match)
 table(STOCK$lag[STOCK$match==1])
+
+Streak<-NULL
+pchange<-NULL
+Streakz<-NULL
+pchangez<-NULL
+for (j in 1:length(symbols2)){
+  STOCK<-stock(Last = 3000)
+  qSTOCK<-q[q$V1%in%symbols[j],]
+  quote<-qSTOCK$Change/qSTOCK$Last*100
+  # probit<-glm(data = STOCK, lag ~ streak+pCHANGE, family = binomial(link = probit))
+  print(symbols[j])
+  # stargazer(probit,type = "text")
+  x<-probitmfx(formula = lag ~ streak+pCHANGE,data = STOCK,robust = TRUE)
+  Streak<-c(Streak,x$mfxest[1])
+  pchange<-c(pchange,x$mfxest[2])
+  Streakz<-c(Streakz,x$mfxest[5])
+  pchangez<-c(pchangez,x$mfxest[6])
+}
+regress<-as.data.frame(cbind(symbols,Streak,Streakz,pchange,pchangez))
+regress[,c("symbols","Streak","Streakz","pchange","pchangez")]<-sapply(regress[,c("symbols","Streak","Streakz","pchange","pchangez")],as.character)
+regress[,c("Streak","Streakz","pchange","pchangez")]<-sapply(regress[,c("Streak","Streakz","pchange","pchangez")],as.numeric)
+
+x<-probitmfx(formula = lag ~ streak+pCHANGE,data = STOCK,robust = TRUE)
+as.table(x[1])
+table(STOCK$lag,STOCK$streak)

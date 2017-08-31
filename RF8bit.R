@@ -1,8 +1,8 @@
-symbols<-symbols3
+symbols<-symbolsGen
 ptm<-proc.time()
 HistoryGen<-NULL
 GenL<-6
-for (z in 147:139){
+for (z in 252:2){
   bit<-z
   q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(q)<-c("V1","Last","Change","Ctype","sign")
@@ -59,3 +59,12 @@ for (z in 147:139){
   print(sum(PrintGen$sign[PrintGen$sign==1])/length(PrintGen$sign))
 }
 (proc.time()-ptm)/60
+
+GenAgg2<-HistoryGen%>%group_by(symb,Pctup>.64,PctupDen>45)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+symbolsGen<-as.character(GenAgg$symb[GenAgg$`Pctup > 0.64`==TRUE&GenAgg$`PctupDen > 45`==TRUE&GenAgg$up>.67&GenAgg$n>6])
+table(HistoryGen$sign[HistoryGen$Pctup>.65&HistoryGen$PctupDen>6])
+
+cl <- makeForkCluster(100)
+registerDoParallel(cl)
+getDoParWorkers()
+?`doParallel-package`
