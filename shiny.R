@@ -7,21 +7,21 @@ meter<-read_csv("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA
 geo<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SFMaster_housegeometry.sav")
 demog<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SF_ri_demog.sav")
 HVAC<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/HVACcooling.sav")
-HVACprim<-HVAC[HVAC$HVACPrimaryCooling==1,]
-HVACprim<-HVACprim[!duplicated(cbind(HVACprim$siteid,HVACprim$HVACPrimaryCooling)),]
+
+# one HVAC per site
+HVACprim<-subset(subset(HVAC,HVACPrimaryCooling==1),!duplicated(siteid))
 
 # Merge all of the site characteristics files, one line per site in the final product
 Merge<-left_join(geo,left_join(demog,HVACprim,by="siteid"), by = "siteid")
 
 # Filter the table of sites to drop some specific building types, renters, etc.
-Sites<-Merge[Merge$SFBuildingType=="Single Family, Detached"&Merge$ResInt_HomeOwnership=="Own/Buying"&Merge$SFFloors=="1",]
-Sites<-Sites[!is.na(Sites$siteid),]
+Sites2<-subset(Merge,SFBuildingType=="Single Family, Detached"&ResInt_HomeOwnership=="Own/Buying"&SFFloors=="1")
 
 # Use that filtered site table to drop the same households from the metering data, retaining only those sites that met your criteria (without appending any variables)
-meter_filtered<-meter[meter$siteid %in% Sites$siteid,]
+meter_filtered<-subset(meter,siteid %in% Sites$siteid)
 
 # Merge the site sqft and primary cooling type with all the metering data
-x<-Merge[,c("siteid","SummarySketchSqFt_Calculated","HVACType")]
+x<-select(Merge,c(siteid,SummarySketchSqFt_Calculated,HVACType))
 x$siteid<-as.integer(x$siteid)
 meter_merge<-left_join(meter,x,by = "siteid")
 
