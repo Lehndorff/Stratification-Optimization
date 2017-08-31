@@ -8,7 +8,7 @@ ptm<-proc.time()
 Historyday<-NULL
 Historyrun<-NULL
 RunOn<-TRUE
-for (z in 253:2){
+for (z in 253:244){
   bit<-z
   q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(q)<-c("V1","Last","Change","Ctype","sign")
@@ -78,8 +78,8 @@ for (z in 253:2){
   Tomorrow$sign<-sign(Tomorrow$Change)
   TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
   TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
-  Printday<-cbind(merge(select(WatchDay,symb,Day,Pctup,Pctdn),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
-  Printrun<-cbind(merge(select(WatchRun,symb,Run,Pctup,Pctrn),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Printday<-cbind(merge(WatchDay,TomorrowWatch,by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Printrun<-cbind(merge(WatchRun,TomorrowWatch,by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   Historyrun<-rbind(Historyrun,Printrun)
   Historyday<-rbind(Historyday,Printday)
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
