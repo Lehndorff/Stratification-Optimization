@@ -27,6 +27,8 @@ meter_merge<-left_join(meter,x,by = "siteid")
 
 # Aggregate the metering data
 meteragg<-meter_merge %>% group_by(siteid) %>% summarise(sqft=mean(SummarySketchSqFt_Calculated,na.rm=TRUE),PCT=unique(HVACType),AODT=mean(ODT,na.rm=TRUE),ACkWh=sum(AC,na.rm=TRUE))
+
+# Challenge
 meter_merge2<-meter_merge[(substr(meter_merge$time,3,5)=="JUL"|substr(meter_merge$time,3,5)=="AUG"),c("siteid","time","AC","ODT")]
 meter_merge2$hour<-substr(meter_merge2$time,9,13)
 meteragg2<-meter_merge2%>%group_by(hour)%>%summarise(ODT=mean(ODT,na.rm=TRUE),ACkWh=mean(AC,na.rm=TRUE))
