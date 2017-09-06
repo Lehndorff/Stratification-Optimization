@@ -31,11 +31,21 @@ cooltype<-cooling%>%group_by(siteid)%>%summarise(hp=length(siteid[HVACType=="hea
 cooltype2<-cooling%>%group_by(siteid)%>%summarise(hp=as.numeric(length(siteid[HVACType=="heatpump"])>0),ws=as.numeric(sum(UnitACQuantity[HVACType=="windowshaker"],na.rm=TRUE)>0),cac=as.numeric(length(siteid[HVACType=="centralAC"])>0),hpdf=as.numeric(length(siteid[HVACType=="heatpumpdualfuel"])>0),
   ptac=as.numeric(sum(UnitACQuantity[HVACType=="PTAC"],na.rm=TRUE)>0),evap=as.numeric(length(siteid[HVACType=="evapcooler"])>0),gshp=as.numeric(length(siteid[HVACType=="gshp"])>0),dhp=as.numeric(length(siteid[HVACType=="dhp"])>0))
 
-heatmerge<-left_join(heattype,left_join(state,weights,by="siteid"), by = "siteid")
-heatmerge2<-left_join(heattype2,left_join(state,weights,by="siteid"), by = "siteid")
-coolmerge<-left_join(cooltype,left_join(state,weights,by="siteid"), by = "siteid")
-coolmerge2<-left_join(cooltype2,left_join(state,weights,by="siteid"), by = "siteid")
-whmerge<-left_join(whtype,left_join(state,weights,by="siteid"), by = "siteid")
+# heatmerge<-left_join(heattype,left_join(state,weights,by="siteid"), by = "siteid")
+# heatmerge2<-left_join(heattype2,left_join(state,weights,by="siteid"), by = "siteid")
+# coolmerge<-left_join(cooltype,left_join(state,weights,by="siteid"), by = "siteid")
+# coolmerge2<-left_join(cooltype2,left_join(state,weights,by="siteid"), by = "siteid")
+# whmerge<-left_join(whtype,left_join(state,weights,by="siteid"), by = "siteid")
+heatmerge<-left_join(left_join(state,weights,by="siteid"),heattype, by = "siteid")
+heatmerge[is.na(heatmerge)]<-0
+heatmerge2<-left_join(left_join(state,weights,by="siteid"),heattype2, by = "siteid")
+heatmerge2[is.na(heatmerge2)]<-0
+coolmerge<-left_join(left_join(state,weights,by="siteid"),cooltype, by = "siteid")
+coolmerge[is.na(coolmerge)]<-0
+coolmerge2<-left_join(left_join(state,weights,by="siteid"),cooltype2, by = "siteid")
+coolmerge2[is.na(coolmerge2)]<-0
+whmerge<-left_join(left_join(state,weights,by="siteid"), whtype,by = "siteid")
+whmerge[is.na(whmerge)]<-0
 
 heatingagg<-heatmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(bb=weighted.mean(bb,w = svy_wt),faf=weighted.mean(faf,w = svy_wt),pih=weighted.mean(pih,w = svy_wt),hp=weighted.mean(hp,w = svy_wt),
   htst=weighted.mean(htst,w = svy_wt),fp=weighted.mean(fp,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),boil=weighted.mean(boil,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),n())
