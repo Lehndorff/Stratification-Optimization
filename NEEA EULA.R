@@ -4,6 +4,7 @@ library("readr")
 library("haven")
 # Import NEEA RBSA data from CSV and SPSS datasets into R.
 # meter<-read_csv("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/RBSA Metering Data/Raw Data/RBSA_METER_DATA.csv")
+meterinfo<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/NEEA.RBSA.Metering.Data.Clean.UNIQUEID.HVAConly.sav")
 read.csv.folder("/volumes/Projects/Common Data Files/NEEA RBSA/Exported to CSV",remove = "*.csv$")
 geo<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SFMaster_housegeometry.sav")
 demog<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SF_ri_demog.sav")
@@ -46,6 +47,8 @@ coolmerge2<-left_join(left_join(state,weights,by="siteid"),cooltype2, by = "site
 coolmerge2[is.na(coolmerge2)]<-0
 whmerge<-left_join(left_join(state,weights,by="siteid"), whtype,by = "siteid")
 whmerge[is.na(whmerge)]<-0
+metermerge<-left_join(left_join(state,weights,by="siteid"), meterinfo,by = "siteid")
+metermerge[is.na(metermerge)]<-0
 
 heatingagg<-heatmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(bb=weighted.mean(bb,w = svy_wt),faf=weighted.mean(faf,w = svy_wt),pih=weighted.mean(pih,w = svy_wt),hp=weighted.mean(hp,w = svy_wt),
   htst=weighted.mean(htst,w = svy_wt),fp=weighted.mean(fp,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),boil=weighted.mean(boil,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),n())
@@ -59,6 +62,13 @@ whagg<-whmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(heatpump=weight
 
 heatingagg3<-heatmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(n=n(),bb=sum(bb),faf=sum(faf),pih=sum(pih),hp=sum(hp),htst=sum(htst),fp=sum(fp),hpdf=sum(hpdf),boil=sum(boil),dhp=sum(dhp),gshp=sum(gshp))
 coolingagg3<-coolmerge%>%group_by(state,(cool_clim_zone==1))%>%summarise(n=n(),hp=sum(hp),ws=sum(ws),cac=sum(cac),hpdf=sum(hpdf),ptac=sum(ptac),evap=sum(evap),gshp=sum(gshp),dhp=sum(dhp))
+
+meterinfoagg<-metermerge%>%group_by(state)%>%summarise(hp=sum(kWhHPflag),dhp=sum(kWhDHPflag),ac=sum(kWhACflag),bb=sum(kWhERflag),faf=sum(ElecFurnaceflag))
+meterinfoagg2<-metermerge%>%group_by(heat_clim_zone,cool_clim_zone)%>%summarise(hp=sum(kWhHPflag),dhp=sum(kWhDHPflag),ac=sum(kWhACflag),bb=sum(kWhERflag),faf=sum(ElecFurnaceflag))
+meteraggcount<-meterinfo%>%group_by(siteid)%>%mutate(count=sum(kWhHPflag,kWhDHPflag,kWhACflag,kWhERflag,ElecFurnaceflag,na.rm=TRUE))
+metercountagg<-left_join(meteraggcount,state,by="siteid")%>%group_by(state)%>%summarise(four=sum(count==4),three=sum(count==3),two=sum(count==2),one=sum(count==1),zero=sum(count==0))
+metercountagg2<-left_join(meteraggcount,left_join(state,weights,by="siteid"),by="siteid")%>%group_by(heat_clim_zone,cool_clim_zone)%>%summarise(four=sum(count==4),three=sum(count==3),two=sum(count==2),one=sum(count==1),zero=sum(count==0))
+
 
 cooling$HVACType[cooling$HVACType=="centralac"]<-"centralAC"
 cooling$HVACType[cooling$HVACType=="ptac"]<-"PTAC"
