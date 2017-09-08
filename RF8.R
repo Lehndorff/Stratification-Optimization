@@ -8,7 +8,7 @@ symbolsDOW<-c("AAPL","AXP","BA","CAT","CSCO","CVX","KO","DD","XOM","GE","GS","HD
 symbolsSP<-as.vector(read.csv("~/desktop/symbolsSP.csv")[,2])
 symbolsH<-c("AVB","PNW","SO","TSS","WAT","CTSH","KO","DIA","SPY")
 symbols<-"COO"
-symbols <-symbolsSP
+symbols <-symbols2
 # symbols<-unique(c(symbolsSP,SymbolsNAS))
 l<-1
 l<-match("MMM",symbols)

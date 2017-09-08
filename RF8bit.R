@@ -1,4 +1,4 @@
-symbols<-symbolsGen
+symbols<-symbolsGendown
 ptm<-proc.time()
 HistoryGen<-NULL
 GenL<-6
@@ -53,18 +53,29 @@ for (z in 252:2){
   Tomorrow$sign<-sign(Tomorrow$Change)
   TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
   TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
-  PrintGen<-cbind(merge(select(WatchGen,symb,Pctup,PctupDen),select(TomorrowWatch,V1,Last,Change,sign),by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  PrintGen<-cbind(merge(WatchGen,TomorrowWatch,by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   HistoryGen<-rbind(HistoryGen,PrintGen)
   print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
   print(sum(PrintGen$sign[PrintGen$sign==1])/length(PrintGen$sign))
 }
 (proc.time()-ptm)/60
 
-GenAgg2<-HistoryGen%>%group_by(symb,Pctup>.64,PctupDen>45)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
+GenAgg<-HistoryGen%>%group_by(symb)%>%summarise(up=(n()+mean(sign)*n())/(2*n()),In=sum(Last),prof=sum(Change),return=prof/In*100,n=n())
 symbolsGen<-as.character(GenAgg$symb[GenAgg$`Pctup > 0.64`==TRUE&GenAgg$`PctupDen > 45`==TRUE&GenAgg$up>.67&GenAgg$n>6])
 table(HistoryGen$sign[HistoryGen$Pctup>.65&HistoryGen$PctupDen>6])
-
-cl <- makeForkCluster(100)
-registerDoParallel(cl)
-getDoParWorkers()
-?`doParallel-package`
+symbolsGendown<-NULL
+for (j in 1:length(symbols)){
+  subs<-subset(HistoryGen,symb==symbols[j])
+  x<-probitmfx(formula = as.numeric(sign==1) ~ Pctup+PctupDen,data = subs,robust = TRUE)
+  print(x)
+  if(x$mfxest[7]<.05){
+    # print(symbols[j])
+    if(x$mfxest[1]<0){
+      # symbolsGendown<-c(symbolsGendown,symbols[j])
+      # print(symbols[j])
+    }
+    # print(x)
+  }
+}
+table(symbolsGendown)
+HistoryGen2<-read.csv("~/desktop/HG61yago95.csv")

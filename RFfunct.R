@@ -65,3 +65,12 @@ STOCK$peak<-0
 STOCK$peak[findPeaks(STOCK$close)]<-1
 STOCK$vall<-0
 STOCK$vall[findValleys(STOCK$close)]<-1
+
+for (j in 1:length(symbols)){
+  STOCK<-stock(RUN = TRUE,Last = 3000)
+  STOCK$date<-row.names(STOCK)
+  Test<-left_join(STOCK,left_join(STOCKDIA,STOCKSPY,by = "date"),by = "date")
+  print(symbols[j])
+  print(cor(Test$rflag[2:(length(Test$pCHANGE)-1)],Test$pCHANGE.x[2:(length(Test$pCHANGE)-1)]))
+  print(cor(Test$rflag[2:(length(Test$pCHANGE)-1)],Test$pCHANGE.y[2:(length(Test$pCHANGE)-1)]))
+}
