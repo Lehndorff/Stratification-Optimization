@@ -37,6 +37,7 @@ cooltype2<-cooling%>%group_by(siteid)%>%summarise(hp=as.numeric(length(siteid[HV
 # coolmerge<-left_join(cooltype,left_join(state,weights,by="siteid"), by = "siteid")
 # coolmerge2<-left_join(cooltype2,left_join(state,weights,by="siteid"), by = "siteid")
 # whmerge<-left_join(whtype,left_join(state,weights,by="siteid"), by = "siteid")
+# metermerge<-left_join(meterinfoall,left_join(state,weights,by="siteid"),by = "siteid")
 heatmerge<-left_join(left_join(state,weights,by="siteid"),heattype, by = "siteid")
 heatmerge[is.na(heatmerge)]<-0
 heatmerge2<-left_join(left_join(state,weights,by="siteid"),heattype2, by = "siteid")
@@ -63,12 +64,12 @@ whagg<-whmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(heatpump=weight
 heatingagg3<-heatmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(n=n(),bb=sum(bb),faf=sum(faf),pih=sum(pih),hp=sum(hp),htst=sum(htst),fp=sum(fp),hpdf=sum(hpdf),boil=sum(boil),dhp=sum(dhp),gshp=sum(gshp))
 coolingagg3<-coolmerge%>%group_by(state,(cool_clim_zone==1))%>%summarise(n=n(),hp=sum(hp),ws=sum(ws),cac=sum(cac),hpdf=sum(hpdf),ptac=sum(ptac),evap=sum(evap),gshp=sum(gshp),dhp=sum(dhp))
 
-meterinfoagg<-metermerge%>%group_by(state)%>%summarise(hp=sum(kWhHPflag),dhp=sum(kWhDHPflag),ac=sum(kWhACflag),bb=sum(kWhERflag),faf=sum(ElecFurnaceflag))
+meteringoagg<-metermerge%>%group_by(state)%>%summarise(hpwh=sum(hWhHPWH))
+meterinfoagg<-metermerge%>%group_by(state)%>%summarise(hp=sum(kWhHPflag),dhp=sum(kWhDHPflag),ac=sum(kWhACflag),bb=sum(kWhERflag),faf=sum(ElecFurnaceflag),n=n())
 meterinfoagg2<-metermerge%>%group_by(heat_clim_zone,cool_clim_zone)%>%summarise(hp=sum(kWhHPflag),dhp=sum(kWhDHPflag),ac=sum(kWhACflag),bb=sum(kWhERflag),faf=sum(ElecFurnaceflag))
 meteraggcount<-meterinfo%>%group_by(siteid)%>%mutate(count=sum(kWhHPflag,kWhDHPflag,kWhACflag,kWhERflag,ElecFurnaceflag,na.rm=TRUE))
 metercountagg<-left_join(meteraggcount,state,by="siteid")%>%group_by(state)%>%summarise(four=sum(count==4),three=sum(count==3),two=sum(count==2),one=sum(count==1),zero=sum(count==0))
 metercountagg2<-left_join(meteraggcount,left_join(state,weights,by="siteid"),by="siteid")%>%group_by(heat_clim_zone,cool_clim_zone)%>%summarise(four=sum(count==4),three=sum(count==3),two=sum(count==2),one=sum(count==1),zero=sum(count==0))
-
 
 cooling$HVACType[cooling$HVACType=="centralac"]<-"centralAC"
 cooling$HVACType[cooling$HVACType=="ptac"]<-"PTAC"
@@ -95,3 +96,17 @@ equipjoin$yes[is.na(equipjoin$yes)]<-0
 equipagg<-equipjoin%>%group_by(Site_State)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
 
 write.csv(equipagg,"~/desktop/EA.csv")
+
+heatcool<-full_join(heattype2,cooltype2,by="siteid")
+heatcool[is.na(heatcool)]<-0
+heatcool$bb[heatcool$bb==1]<-"bb"
+heatcool$faf[heatcool$faf==1]<-"faf"
+heatcool$hp.x[heatcool$hp.x==1]<-"hp.h"
+heatcool$dhp.x[heatcool$dhp.x==1]<-"dhp.h"
+heatcool$hp.y[heatcool$hp.y==1]<-"hp.c"
+heatcool$cac[heatcool$cac==1]<-"cac"
+heatcool$dhp.y[heatcool$dhp.y==1]<-"dhp.c"
+heatcool$conc<-paste(heatcool$bb,heatcool$faf,heatcool$hp.x,heatcool$dhp.x,heatcool$hp.y,heatcool$cac,heatcool$dhp.y,sep = "-")
+heatcoolagg<-heatcool%>%group_by(conc)%>%summarise(n=n())
+heatcoolagg<-heatcool%>%group_by(conc)%>%summarise(n=n(),bb=max(bb),faf=max(faf),hph=max(hp.x),dhpx=max(dhp.x),
+  hpc=max(hp.y),cac=max(cac),dhpc=max(dhp.y))
