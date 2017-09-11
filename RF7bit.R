@@ -7,8 +7,8 @@ for (i in l:length(symbols)){
 ptm<-proc.time()
 Historyday<-NULL
 Historyrun<-NULL
-RunOn<-TRUE
-for (z in 253:244){
+RunOn<-FALSE
+for (z in 507:253){
   bit<-z
   q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
   names(q)<-c("V1","Last","Change","Ctype","sign")
@@ -42,8 +42,8 @@ for (z in 253:244){
     STOCKtr<-STOCKtr[!is.na(STOCKtr$pCHANGE),]
     STOCKtr$lag[is.na(STOCKtr$lag)]<-sign(quote)
     STOCKtr$running<-cummean(STOCKtr$lag)
-    PctupDay<-c(PctupDay,mean(STOCKtd$running,na.rm = TRUE))
-    PctupRun<-c(PctupRun,mean(STOCKtr$running,na.rm = TRUE))
+    PctupDay<-c(PctupDay,(mean(STOCKtd$running,na.rm = TRUE)-mean(STOCKtd$lag)))
+    PctupRun<-c(PctupRun,(mean(STOCKtr$running,na.rm = TRUE)-mean(STOCKtr$lag)))
     Pctrn<-c(Pctrn,length(STOCKtr$running))
     Pctdn<-c(Pctdn,length(STOCKtd$running))
     Day<-c(Day,round(quote,3))
@@ -122,3 +122,16 @@ for (i in 10:90*.01){
 i<-.75
 table(Historyday$sign[Historyday$Pctup>i])
 sum(Historyday$sign[Historyday$Pctup>i]==1)/sum(Historyday$Pctup>i)
+
+symbolsdayup<-NULL
+for (j in 1:length(symbols)){
+  subs<-subset(Historyday,symb==symbols[j])
+  x<-probitmfx(formula = as.numeric(sign==1) ~ Pctup+Pctdn,data = subs,robust = TRUE)
+  print(x)
+  if (abs(x$mfxest[7])<.05&x$mfxest[1]>0){
+    # symbolsdayup<-c(symbolsdayup,symbols[j])
+    # print(symbols2[j])
+    # print(x)
+  }
+}
+
