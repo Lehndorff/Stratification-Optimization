@@ -27,6 +27,7 @@ stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0){
   STOCK$rflag<-lead(STOCK$pCHANGE)
   colnames(STOCK)[colnames(STOCK)=="..2"]<-"streak"
   STOCK<-STOCK[1:(nrow(STOCK)-bit),]
+  STOCK$date<-row.names(STOCK)
   return(STOCK)
 }
 
