@@ -53,6 +53,8 @@ MFCZ$cz[MFCZ$idunit=="21000-3"]<-2
 MFCZ$hz[MFCZ$idunit=="21000-1"]<-1
 MFCZ$hz[MFCZ$idunit=="21000-2"]<-1
 MFCZ$hz[MFCZ$idunit=="21000-3"]<-1
+MFunit_master2<-left_join(MFunit_master,MFCZ,by="idunit")
+MFunit_master2[is.na(MFunit_master2)]<-1
 
 # data for Mfr. homes
 # heating<-MH_HVACheating
@@ -137,10 +139,11 @@ equipsite<-equip%>%group_by(idunit)%>%summarise(count=sum(count,na.rm=TRUE))
 equipsite$yes<-as.numeric(equipsite$count>0)
 BB<-equipsite
 names(BB)<-c("idunit","count" ,"BB")
-# equipjoin<-left_join(MFunit_master,equipsite,by="idunit")
-# equipjoin$count[is.na(equipjoin$count)]<-0
-# equipjoin$yes[is.na(equipjoin$yes)]<-0
-# equipagg<-equipjoin%>%group_by(Site_State)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
+equipjoin<-left_join(MFunit_master2,equipsite,by="idunit")
+equipjoin$count[is.na(equipjoin$count)]<-0
+equipjoin$yes[is.na(equipjoin$yes)]<-0
+equipaggheat<-equipjoin%>%group_by(Site_State,hz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
+equipaggcool<-equipjoin%>%group_by(Site_State,cz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
 
 # write.csv(equipagg,"~/desktop/EA.csv")
 
