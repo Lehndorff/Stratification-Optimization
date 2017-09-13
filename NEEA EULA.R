@@ -15,6 +15,44 @@ cooling<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/N
 weights<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SFmaster_populations.sav")
 state<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SFmaster_location.sav")
 wh<-read_spss("/Volumes/Projects/419006 - SCE AMI Billing Regression/Data/NEEA RBSA/Analysis/SPSS Data/SFwheater.sav")
+MFunit_master$idunit<-paste(MFunit_master$siteid,MFunit_master$unit_it,sep = "-")
+CZS<-read.csv(file = "~/downloads/RTF_ClimateZoneCalculation.csv")
+MFZip<-read.csv("~/downloads/RTF_ClimateZoneZIP.csv")
+names(MFZip)[2]<-names(MFunit_master)[6]
+names(MFZip)[1]<-names(CZS)[1]
+MFmasterZip<-left_join(MFunit_master,MFZip,by=names(MFunit_master)[6])
+MFmasterCZ<-left_join(MFmasterZip,CZS,by=names(CZS)[1])
+MFCZ<-MFmasterCZ%>%group_by(idunit)%>%summarise(hz=mean(Heating.Zone),hzu=length(unique(Heating.Zone)),cz=mean(Cooling.Zone),czu=length(unique(Cooling.Zone)))
+MFCZ$hz[MFCZ$idunit==""]<-
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
+MFCZ$hz[MFCZ$idunit==""]<-x
 
 # data for Mfr. homes
 # heating<-MH_HVACheating
