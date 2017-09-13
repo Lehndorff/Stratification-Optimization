@@ -91,21 +91,36 @@ meteraggcount<-meterinfo%>%group_by(siteid)%>%mutate(count=sum(kWhHPflag,kWhDHPf
 
 # for multifamily, one equipment type at a time
 MFunit_master$idunit<-paste(MFunit_master$siteid,MFunit_master$unit_it,sep = "-")
-equip<-MFunit_wheater
-names(equip)[6]<-"count"
+equip<-MFunit_centralac
+# names(equip)[6]<-"count"
 equip$count<-1
 equip$idunit<-paste(equip$siteid,equip$unit_it,sep = "-")
 equipsite<-equip%>%group_by(idunit)%>%summarise(count=sum(count,na.rm=TRUE))
 equipsite$yes<-as.numeric(equipsite$count>0)
+BB<-equipsite
+names(BB)<-c("idunit","count" ,"BB")
+# equipjoin<-left_join(MFunit_master,equipsite,by="idunit")
+# equipjoin$count[is.na(equipjoin$count)]<-0
+# equipjoin$yes[is.na(equipjoin$yes)]<-0
+# equipagg<-equipjoin%>%group_by(Site_State)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
 
-equipjoin<-left_join(MFunit_master,equipsite,by="idunit")
-equipjoin$count[is.na(equipjoin$count)]<-0
-equipjoin$yes[is.na(equipjoin$yes)]<-0
-equipagg<-equipjoin%>%group_by(Site_State)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
+# write.csv(equipagg,"~/desktop/EA.csv")
 
-write.csv(equipagg,"~/desktop/EA.csv")
+# for MF cross frequencies
+MFall<-full_join(MFunit_master,full_join(MFHP,full_join(DHPC,full_join(DHPH,full_join(CAC,full_join(BB,FAF,by="idunit"),by="idunit"),by="idunit"),by="idunit"),by="idunit"),by="idunit")
+MFall[is.na(MFall)]<-0
+MFall$BB[MFall$BB==1]<-"bb"
+MFall$FAF[MFall$FAF==1]<-"faf"
+MFall$HP[MFall$HP==1]<-"hp.h"
+MFall$DHPC[MFall$DHPC==1]<-"dhp.c"
+MFall$CAC[MFall$CAC==1]<-"cac"
+MFall$DHPH[MFall$DHPH==1]<-"dhp.h"
+MFall$conc<-paste(MFall$BB,MFall$FAF,MFall$HP,MFall$DHPH,0,0,0,MFall$CAC,MFall$DHPC,0,0,sep="-")
+heatcool$conc<-paste(heatcool$bb,heatcool$faf,heatcool$hp.x,heatcool$dhp.x,heatcool$gshp.x,heatcool$hpdf.x,heatcool$hp.y,heatcool$cac,heatcool$dhp.y,heatcool$gshp.y,heatcool$hpdf.y,sep = "-")
+MFallagg<-MFall%>%group_by(conc)%>%summarise(n=n())
+MFallagg<-MFall%>%group_by(conc)%>%summarise(n=n(),bb=max(BB),faf=max(FAF),hph=max(HP),dhpx=max(DHPH),cac=max(CAC),dhpc=max(DHPC))
 
-# for cross frequencies of single family technology types
+# for cross frequencies of single family/mfr technology types
 heatcool<-full_join(heattype2,cooltype2,by="siteid")
 heatcool[is.na(heatcool)]<-0
 heatcool$bb[heatcool$bb==1]<-"bb"
@@ -123,3 +138,56 @@ heatcool$conc<-paste(heatcool$bb,heatcool$faf,heatcool$hp.x,heatcool$dhp.x,heatc
 heatcoolagg<-heatcool%>%group_by(conc)%>%summarise(n=n())
 heatcoolagg<-heatcool%>%group_by(conc)%>%summarise(n=n(),bb=max(bb),faf=max(faf),hph=max(hp.x),dhpx=max(dhp.x),
   hpc=max(hp.y),cac=max(cac),dhpc=max(dhp.y))
+
+CFall<-full_join(heatcoolaggmfr,full_join(heatcoolaggsf,MFallagg,by="conc"),by="conc")
+CFall[is.na(CFall)]<-0
+CFall$N<-CFall$n.x+CFall$n.y+CFall$n
+
+# CAC saturations for gas heated homes
+# state and climate zone level aggregation for: 1) total count, and 2) presence
+gassites<-heating$siteid[heating$HVACFuel=="Natural Gas"]
+heatmergeg<-heatmerge[heatmerge$siteid %in% gassites,]
+heatmergeg2<-heatmerge2[heatmerge2$siteid %in% gassites,]
+coolmergeg<-coolmerge[coolmerge$siteid %in% gassites,]
+coolmergeg2<-coolmerge2[coolmerge2$siteid %in% gassites,]
+
+heatingagg<-heatmergeg%>%group_by(state,(heat_clim_zone==1))%>%summarise(bb=weighted.mean(bb,w = svy_wt),faf=weighted.mean(faf,w = svy_wt),pih=weighted.mean(pih,w = svy_wt),hp=weighted.mean(hp,w = svy_wt),
+  htst=weighted.mean(htst,w = svy_wt),fp=weighted.mean(fp,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),boil=weighted.mean(boil,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),n())
+coolingagg<-coolmergeg%>%group_by(state,(cool_clim_zone==1))%>%summarise(hp=weighted.mean(hp,w = svy_wt),ws=weighted.mean(ws,w = svy_wt),cac=weighted.mean(cac,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),
+  ptac=weighted.mean(ptac,w = svy_wt),evap=weighted.mean(evap,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),n=n())
+heatingagg2<-heatmergeg2%>%group_by(state,(heat_clim_zone==1))%>%summarise(bb=weighted.mean(bb,w = svy_wt),faf=weighted.mean(faf,w = svy_wt),pih=weighted.mean(pih,w = svy_wt),hp=weighted.mean(hp,w = svy_wt),
+  htst=weighted.mean(htst,w = svy_wt),fp=weighted.mean(fp,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),boil=weighted.mean(boil,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),n())
+coolingagg2<-coolmergeg2%>%group_by(state,(cool_clim_zone==1))%>%summarise(hp=weighted.mean(hp,w = svy_wt),ws=weighted.mean(ws,w = svy_wt),cac=weighted.mean(cac,w = svy_wt),hpdf=weighted.mean(hpdf,w = svy_wt),
+  ptac=weighted.mean(ptac,w = svy_wt),evap=weighted.mean(evap,w = svy_wt),gshp=weighted.mean(gshp,w = svy_wt),dhp=weighted.mean(dhp,w = svy_wt),n=n())
+whagg<-whmerge%>%group_by(state,(heat_clim_zone==1))%>%summarise(heatpump=weighted.mean(hp,w = svy_wt),n=n(),hpc=sum(hp))
+
+# counts (numerator) of technology
+heatingagg3<-heatmergeg%>%group_by(state,(heat_clim_zone==1))%>%summarise(n=n(),bb=sum(bb),faf=sum(faf),pih=sum(pih),hp=sum(hp),htst=sum(htst),fp=sum(fp),hpdf=sum(hpdf),boil=sum(boil),dhp=sum(dhp),gshp=sum(gshp))
+coolingagg3<-coolmergeg%>%group_by(state,(cool_clim_zone==1))%>%summarise(n=n(),hp=sum(hp),ws=sum(ws),cac=sum(cac),hpdf=sum(hpdf),ptac=sum(ptac),evap=sum(evap),gshp=sum(gshp),dhp=sum(dhp))
+heatingagg4<-heatmergeg2%>%group_by(state,(heat_clim_zone==1))%>%summarise(n=n(),bb=sum(bb),faf=sum(faf),pih=sum(pih),hp=sum(hp),htst=sum(htst),fp=sum(fp),hpdf=sum(hpdf),boil=sum(boil),dhp=sum(dhp),gshp=sum(gshp))
+coolingagg4<-coolmergeg2%>%group_by(state,(cool_clim_zone==1))%>%summarise(n=n(),hp=sum(hp),ws=sum(ws),cac=sum(cac),hpdf=sum(hpdf),ptac=sum(ptac),evap=sum(evap),gshp=sum(gshp),dhp=sum(dhp))
+
+# write.csv(heatingagg,"~/desktop/HA.csv")
+# write.csv(heatingagg2,"~/desktop/HA2.csv")
+# write.csv(heatingagg3,"~/desktop/HA3.csv")
+# write.csv(heatingagg4,"~/desktop/HA4.csv")
+# write.csv(coolingagg,"~/desktop/CA.csv")
+# write.csv(coolingagg2,"~/desktop/CA2.csv")
+# write.csv(coolingagg3,"~/desktop/CA3.csv")
+# write.csv(coolingagg4,"~/desktop/CA4.csv")
+
+MFunit_master$idunit<-paste(MFunit_master$siteid,MFunit_master$unit_it,sep = "-")
+equip<-MFunit_centralac
+equip$count<-1
+equip$idunit<-paste(equip$siteid,equip$unit_it,sep = "-")
+equipsite<-equip%>%group_by(idunit)%>%summarise(count=sum(count,na.rm=TRUE))
+equipsite$yes<-as.numeric(equipsite$count>0)
+gassites<-MFunit_master$idunit[MFunit_master$Equip_PrimaryHeatFuel=="Natural Gas"]
+equipsite<-equipsite[equipsite$idunit %in% gassites,]
+equipjoin<-left_join(MFunit_master,equipsite,by="idunit")
+equipjoin$count[is.na(equipjoin$count)]<-0
+equipjoin$yes[is.na(equipjoin$yes)]<-0
+equipjoing<-equipjoin[equipjoin$idunit%in%gassites,]
+equipagg<-equipjoing%>%group_by(Site_State)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes),n=n())
+
+# write.csv(equipagg,"~/desktop/EA.csv")
