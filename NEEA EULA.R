@@ -131,19 +131,19 @@ meteraggcount<-meterinfo%>%group_by(siteid)%>%mutate(count=sum(kWhHPflag,kWhDHPf
 
 # for multifamily, one equipment type at a time
 MFunit_master$idunit<-paste(MFunit_master$siteid,MFunit_master$unit_it,sep = "-")
-equip<-MFunit_centralac
+equip<-MFunit_minisplitheat
 # names(equip)[6]<-"count"
 equip$count<-1
 equip$idunit<-paste(equip$siteid,equip$unit_it,sep = "-")
 equipsite<-equip%>%group_by(idunit)%>%summarise(count=sum(count,na.rm=TRUE))
 equipsite$yes<-as.numeric(equipsite$count>0)
-BB<-equipsite
-names(BB)<-c("idunit","count" ,"BB")
+# BB<-equipsite
+# names(BB)<-c("idunit","count" ,"BB")
 equipjoin<-left_join(MFunit_master2,equipsite,by="idunit")
 equipjoin$count[is.na(equipjoin$count)]<-0
 equipjoin$yes[is.na(equipjoin$yes)]<-0
-equipaggheat<-equipjoin%>%group_by(Site_State,hz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
-equipaggcool<-equipjoin%>%group_by(Site_State,cz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes))
+equipaggheat<-equipjoin%>%group_by(Site_State,hz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes),n=n())
+equipaggcool<-equipjoin%>%group_by(Site_State,cz==1)%>%summarise(mcount=weighted.mean(count,w=Site_pWeight),scount=sum(count),house=weighted.mean(yes,w=Site_pWeight),shouse=sum(yes),n=n())
 
 # write.csv(equipagg,"~/desktop/EA.csv")
 
