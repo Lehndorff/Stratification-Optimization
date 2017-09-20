@@ -41,3 +41,141 @@ Result<-cbind(symbols,as.data.frame(cbind(lagxup,lagupx)))
 
 
 probitmfx(lag ~ UP+UP.y+streak+streak.y+streak.x+UP.x, data = aaplcomb)
+
+SPYST$meanstc50<-mean(SPYST$pCHANGE)
+for(k in 50:nrow(SPYST)){
+  SPYST$meanstc50[k]<-(mean(SPYST$close[(k-49):k])-SPYST$close[k])
+}
+plot(SPYST$meanstc50)
+table(DIAST$lag,round(DIAST$meanst50,1))
+
+ptm<-proc.time()
+Historyday<-NULL
+Historyrun<-NULL
+for (z in 253:2){
+  bit<-z
+  q<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 5))
+  names(q)<-c("V1","Last","Change","Ctype","sign")
+  q$V1<-symbols
+  for (j in 1:length(symbols)){
+    STOCK<-na.approx(get(symbols[j]))
+    colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+    q$Change[j]<-STOCK$close-lag(STOCK$close)[nrow(STOCK)-bit+1]
+    q$Last[j]<-lag(STOCK$close)[nrow(STOCK)-bit+1]
+  }
+  rownames(q)<-q$V1
+  q$sign<-sign(q$Change)
+  PctupDay<-NULL
+  PctupRun<-NULL
+  Pctdn<-NULL
+  Pctrn<-NULL
+  Day<-NULL
+  Run<-NULL
+  for (j in 1:length(symbols)){
+    STOCK<-stock(Last = 3000)
+    STOCK<-STOCK[1:(nrow(STOCK)-bit),]
+    qSTOCK<-q[q$V1%in%symbols[j],]
+    quote<-qSTOCK$Change/qSTOCK$Last*100
+    STOCKtd<-STOCK[between(STOCK$pCHANGE,drange()[1],drange()[2]),]
+    STOCKtd<-STOCKtd[rev(order(STOCKtd$row)),]
+    STOCKtd<-STOCKtd[!is.na(STOCKtd$pCHANGE),]
+    STOCKtd$lag[is.na(STOCKtd$lag)]<-sign(quote)
+    STOCKtd$running<-cummean(STOCKtd$lag)
+    STOCKtr<-STOCK[STOCK$streak==runtd2(),]
+    STOCKtr<-STOCKtr[rev(order(STOCKtr$row)),]
+    STOCKtr<-STOCKtr[!is.na(STOCKtr$pCHANGE),]
+    STOCKtr$lag[is.na(STOCKtr$lag)]<-sign(quote)
+    STOCKtr$running<-cummean(STOCKtr$lag)
+    PctupDay<-c(PctupDay,weighted.mean(STOCKtd$lag,w=STOCKtd$row))
+    PctupRun<-c(PctupRun,(mean(STOCKtr$lag,na.rm = TRUE)))
+    Pctrn<-c(Pctrn,length(STOCKtr$running))
+    Pctdn<-c(Pctdn,length(STOCKtd$running))
+    Day<-c(Day,round(quote,3))
+    Run<-c(Run,runtd2())
+  }
+
+  PctupDay<-as.data.frame(cbind(symbols,Day,PctupDay,Pctdn))
+  names(PctupDay)<-c("symb","Day","Pctup","Pctdn")
+  PctupDay[,c("Day","Pctup","Pctdn")]<-sapply(PctupDay[,c("Day","Pctup","Pctdn")],as.character)
+  PctupDay[,c("Day","Pctup","Pctdn")]<-sapply(PctupDay[,c("Day","Pctup","Pctdn")],as.numeric)
+  
+  PctupRun<-as.data.frame(cbind(symbols,Run,PctupRun,Pctrn))
+  names(PctupRun)<-c("symb","Run","Pctup","Pctrn")
+  PctupRun[,c("Run","Pctup","Pctrn")]<-sapply(PctupRun[,c("Run","Pctup","Pctrn")],as.character)
+  PctupRun[,c("Run","Pctup","Pctrn")]<-sapply(PctupRun[,c("Run","Pctup","Pctrn")],as.numeric)
+
+  symbolsWatch<-symbols
+  # symbolsWatch<-PctupDay$symb[PctupDay$Pctup>.7]
+  WatchDay<-PctupDay[PctupDay$symb%in%symbolsWatch,]
+  WatchRun<-PctupRun[PctupRun$symb%in%symbolsWatch,]
+
+  Tomorrow<-as.data.frame(matrix(data = NA, nrow=length(symbols),ncol = 4))
+  names(Tomorrow)<-c("V1","Last","Change","sign")
+  Tomorrow$V1<-symbols
+  for (j in 1:length(symbols)){
+    STOCK<-na.approx(get(symbols[j]))
+    colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+    Tomorrow$Change[j]<-STOCK$close-lag(STOCK$close)[nrow(STOCK)-bit+2]
+    Tomorrow$Last[j]<-lag(STOCK$close)[nrow(STOCK)-bit+2]
+  }
+  rownames(Tomorrow)<-Tomorrow$V1
+  Tomorrow$sign<-sign(Tomorrow$Change)
+  TomorrowWatch<-Tomorrow[Tomorrow$V1 %in% symbolsWatch,]
+  TomorrowWatch<-TomorrowWatch[order(TomorrowWatch$V1),]
+  Printday<-cbind(merge(WatchDay,TomorrowWatch,by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Printrun<-cbind(merge(WatchRun,TomorrowWatch,by.x="symb",by.y = "V1"), date=row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  Historyrun<-rbind(Historyrun,Printrun)
+  Historyday<-rbind(Historyday,Printday)
+  print(row.names(as.data.frame(STOCK))[nrow(STOCK)-bit+1])
+  print(sum(Printday$sign[Printday$sign==1])/length(Printday$sign))
+}
+(proc.time()-ptm)/60
+
+dsymbs<-NULL
+usymbs<-NULL
+symbols<-symbols2
+for (j in 1:length(symbols)){
+  STOCK<-stock(STOCK = get(symbols[j]),Last = 5007, bit = 253)
+  STOCK$diff<-lag(STOCK$close)*STOCK$pCHANGE/100
+  STOCK$difflag<-lead(STOCK$diff,1)
+  STOCKagg<-STOCK%>%group_by(down=(UP==0))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  STOCKagg2<-STOCK%>%group_by(streak)%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  # STOCKagg<-STOCK%>%group_by(down=(UP==0))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=weighted.mean(rflag,w=row,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  # STOCKagg2<-STOCK%>%group_by(streak)%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=weighted.mean(rflag,w=row,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  # STOCKagg3<-STOCK%>%group_by(day=round(pCHANGE,1))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  if (sign(STOCKagg$rday[1])>sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4){
+    print(paste(symbols[j],"UP",(STOCKagg$rday[1]-STOCKagg$rday[2])))
+    usymbs<-c(usymbs,symbols[j])
+  }
+  if (sign(STOCKagg$rday[1])<sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4){
+    print(paste(symbols[j],"DOWN",(STOCKagg$rday[1]-STOCKagg$rday[2]),(STOCKagg$up[2]-STOCKagg$up[1])))
+    dsymbs<-c(dsymbs,symbols[j])
+  }
+}
+symbols<-dsymbs
+for (j in 1:length(symbols)){
+  STOCK<-stock(STOCK = get(symbols[j]),Last = 252, bit = 0)
+  STOCK$diff<-lag(STOCK$close)*STOCK$pCHANGE/100
+  STOCK$difflag<-lead(STOCK$diff,1)
+  STOCKagg<-STOCK%>%group_by(down=(UP==0))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  STOCKagg2<-STOCK%>%group_by(streak)%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+  print(paste(symbols[j],STOCKagg$dayn[2],(STOCKagg$dayn[2]-STOCKagg$dayn[1])))
+}
+
+retdsym<-0
+retusym<-0
+for (t in 507:253){
+  print(t)
+  for (j in 1:length(symbols)){
+    STOCK<-stock(STOCK = get(symbols[j]),Last = t+253, bit = t)
+    # STOCK$diff<-lag(STOCK$close)*STOCK$pCHANGE/100
+    # STOCK$difflag<-lead(STOCK$diff,1)  
+    STOCKagg<-STOCK%>%group_by(down=(UP==0))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
+    if (sign(STOCKagg$rday[1])>sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4&last(STOCK$UP)==1){
+      retusym<-retusym+last(STOCK$difflag)
+    }
+    if (sign(STOCKagg$rday[1])<sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4&last(STOCK$UP)==0){
+      retdsym<-retdsym+last(STOCK$difflag)
+    }
+  }
+}
