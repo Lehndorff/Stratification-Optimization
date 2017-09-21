@@ -5,7 +5,7 @@ library(beepr)
 library(mfx)
 getSymbols(c("DIA","SPY"))
 symbolsSP<-as.vector(read.csv("~/desktop/symbolsSP.csv")[,2])
-symbols <-symbols2
+symbols <-symbolsSP
 l<-match("MMM",symbols)
 for (i in l:length(symbols)){
   loadSymbols(Symbols = symbols[i])
@@ -162,20 +162,27 @@ for (j in 1:length(symbols)){
   print(paste(symbols[j],STOCKagg$dayn[2],(STOCKagg$dayn[2]-STOCKagg$dayn[1])))
 }
 
-retdsym<-0
-retusym<-0
+retdsym<-NULL
+retusym<-NULL
 for (t in 507:253){
   print(t)
   for (j in 1:length(symbols)){
-    STOCK<-stock(STOCK = get(symbols[j]),Last = t+253, bit = t)
+    STOCK<-stock(STOCK = get(symbols[j]),Last = t+253, bit = t,id=TRUE)
     # STOCK$diff<-lag(STOCK$close)*STOCK$pCHANGE/100
     # STOCK$difflag<-lead(STOCK$diff,1)  
     STOCKagg<-STOCK%>%group_by(down=(UP==0))%>%summarise(n=n(),up=mean(lag,na.rm=TRUE),rday=mean(rflag,na.rm=TRUE),nday=mean(difflag,na.rm=TRUE),dayn=sum(difflag,na.rm=TRUE),tchng=sum(diff,na.rm=TRUE))
     if (sign(STOCKagg$rday[1])>sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4&last(STOCK$UP)==1){
-      retusym<-retusym+last(STOCK$difflag)
+      retusym<-c(retusym,last(STOCK$id))
     }
     if (sign(STOCKagg$rday[1])<sign(STOCKagg$rday[2])&abs(STOCKagg$rday[1]-STOCKagg$rday[2])>.4&last(STOCK$UP)==0){
-      retdsym<-retdsym+last(STOCK$difflag)
+      retdsym<-c(retdsym,last(STOCK$id))
     }
   }
 }
+
+ALLST<-NULL
+for (j in 1:length(symbols)){
+  ALLST<-bind_rows(ALLST,stock(STOCK=get(symbols[j]),Last = 1000,id=TRUE))
+  print(j)
+}
+
