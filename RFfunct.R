@@ -2,7 +2,7 @@ drange<-function(bound=.2,bump=.075){
   if (abs(quote)<.1){quote=.1*sign(quote)}
   return(sort(c(quote*(1-bound)+(-bump*sign(quote)),quote*(1+bound)+(bump*sign(quote)))))
 }
-stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE){
+stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE,symb=FALSE){
   STOCK<-na.omit(STOCK)
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
   if(length(STOCK$open)<Last){Last<-length(STOCK$open)}
@@ -32,6 +32,9 @@ stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE){
   STOCK$date<-row.names(STOCK)
   if (id==TRUE){
     STOCK$id<-paste(symbols[j],STOCK$date)
+  }
+  if (symb==TRUE){
+    STOCK$symb<-symbols[j]
   }
   return(STOCK)
 }

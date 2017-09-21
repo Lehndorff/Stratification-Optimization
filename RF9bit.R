@@ -186,3 +186,7 @@ for (j in 1:length(symbols)){
   print(j)
 }
 
+ALLretd<-ALLST[ALLST$id%in%retdsym,]
+ALLretu<-ALLST[ALLST$id%in%retusym,]
+ALLretdagg<-ALLretd%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag))
+ALLretuagg<-ALLretu%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag))
