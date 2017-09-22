@@ -4,13 +4,15 @@ library(ggplot2)
 library(devtools)
 library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
-Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
+# Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
+Data <- read.csv("~/Desktop/SampleFrame_092217.csv", stringsAsFactors = FALSE)
 StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
 print(Enduses)
-StratVar<-"SumKWH"
-ID<-"CProjectID"
+KWHEU<-c("CustomElectric","OtherKWH","T8","Motor","LED","OtherLighting","CompressedAirEquip")
+MCFEU<-c("CustomGas","BoilersandBoilerControls","HVAC","OtherGas")
+ID<-"C.Project.ID"
 subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
   str1<-data[[size]][data[[strata]]==1]
   str2<-data[[size]][data[[strata]]==2]
@@ -45,10 +47,11 @@ FinSamp<-function(InfSamp,Total){
 
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
-Endusesn<-c(1:9)
+StratVar<-"SumMCF"
+Endusesn<-c(match(MCFEU,Enduses))
 MaxCert<-0
-ToleranceSet<-2
-minTolerance<-1
+ToleranceSet<-1.2
+minTolerance<-0
 Critical<-1.284
 Precision<-.2
 Restrictions<-1
