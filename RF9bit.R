@@ -3,6 +3,7 @@ library(dplyr)
 library(data.table)
 library(beepr)
 library(mfx)
+library(TTR)
 getSymbols(c("DIA","SPY"))
 symbolsSP<-as.vector(read.csv("~/desktop/symbolsSP.csv")[,2])
 symbols <-symbolsSP
@@ -182,11 +183,40 @@ for (t in 507:253){
 
 ALLST<-NULL
 for (j in 1:length(symbols)){
-  ALLST<-bind_rows(ALLST,stock(STOCK=get(symbols[j]),Last = 1000,id=TRUE))
+  ALLST<-bind_rows(ALLST,stock(STOCK=get(symbols[j]),Last = 1000,id=TRUE,symb=TRUE))
   print(j)
 }
 
-ALLretd<-ALLST[ALLST$id%in%retdsym,]
+ALLyessymb<-ALLST[ALLST$id%in%yessymb,]
 ALLretu<-ALLST[ALLST$id%in%retusym,]
 ALLretdagg<-ALLretd%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag))
 ALLretuagg<-ALLretu%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag))
+
+yessymb<-NULL
+ALLYES<-NULL
+for (j in 1:length(symbols)){
+  STOCK<-stock(STOCK = get(symbols[j]),Last = 3000,id=TRUE,symb = TRUE)
+  STOCK[is.na(STOCK)]<-0
+  STOCK2<-STOCK%>%group_by(UP)%>%mutate(rfall=cummean(rflag),lagmean=cummean(lag),diffmean=cummean(diff),rfall253=SMA(rflag,n=153),lagmean253=SMA(lag, n=153),diffmean253=SMA(diff,n=153))
+  # STOCK2$YES<-((STOCK2$rfall>0.1)&(STOCK2$lagmean>.5)&(STOCK2$diffmean>0)&(STOCK2$rfall253>0.2)&(STOCK2$lagmean253>.5)&(STOCK2$diffmean253>0))
+  # sum(STOCK2$YES[STOCK2$row>(nrow(STOCK2)-253)],na.rm = TRUE)
+  # yessymb<-c(yessymb,STOCK2$id[STOCK2$YES&STOCK2$row>(nrow(STOCK2)-253)])
+  ALLYES<-bind_rows(ALLYES,STOCK2)
+  print(j)
+}
+
+sum(subset(ALLYES,rfall>-900&lagmean>0&diffmean>0&rfall253>.175&lagmean253>.505&diffmean253>0&substr(date,1,4)=="2016"&close<500)$difflag,na.rm = TRUE)
+SUBYES<-subset(ALLYES,rfall>-900&lagmean>0&diffmean>0&rfall253>.175&lagmean253>.505&diffmean253>0&substr(date,1,4)=="2016"&close<500)%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag,na.rm=TRUE))
+range(SUBYES$In)
+sum(SUBYES$ret)/max(SUBYES$In)
+table(subset(ALLYES,rfall>-.9&lagmean>.5&diffmean>0&rfall253>.175&lagmean253>.5&diffmean253>0&substr(date,1,4)=="2017"&symb!="PCLN")$symb)
+length(unique(SUBYES$date))
+
+summary(lm(rflag ~ rfall + lagmean + diffmean + rfall253 + lagmean253 + diffmean253, data = ALLYES))
+
+
+ALLyessymb<-ALLST[ALLST$id%in%yessymb,]
+ALLyessymbagg<-ALLyessymb%>%group_by(date)%>%summarise(In=sum(close),ret=sum(difflag,na.rm=TRUE))
+sum(ALLyessymb$difflag,na.rm = TRUE)
+range(ALLyessymbagg$In)
+ALLyessymbagg2<-ALLyessymb%>%group_by(symb)%>%summarise(In=sum(close),ret=sum(difflag,na.rm=TRUE))

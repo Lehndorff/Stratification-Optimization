@@ -2,9 +2,15 @@ drange<-function(bound=.2,bump=.075){
   if (abs(quote)<.1){quote=.1*sign(quote)}
   return(sort(c(quote*(1-bound)+(-bump*sign(quote)),quote*(1+bound)+(bump*sign(quote)))))
 }
-stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE,symb=FALSE){
+stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE,symb=FALSE,today=FALSE){
   STOCK<-na.omit(STOCK)
   colnames(STOCK)<-c("open","high","low","close","volume","adjusted")
+  STOCK<-as.data.frame(STOCK)
+  STOCK$date<-row.names(STOCK)
+  if (today == TRUE){
+    STtoday<-quotes[(quotes$symb%in%symbols[j]),c("open","close","high","low","volume","date")]
+    STOCK<-bind_rows(as.data.frame(STOCK),STtoday)
+  }
   if(length(STOCK$open)<Last){Last<-length(STOCK$open)}
   STOCK<-STOCK[(length(STOCK$open)-Last):length(STOCK$open),]
   STOCK$row<-1:length(STOCK$open)
@@ -25,11 +31,10 @@ stock<-function(STOCK=get(symbols[j]),Last=h,RUN=TRUE,bit=0,id=FALSE,symb=FALSE)
   STOCK<-as.data.frame(STOCK)
   STOCK$lag<-lead(STOCK$UP,1)
   STOCK$rflag<-lead(STOCK$pCHANGE)
-  colnames(STOCK)[colnames(STOCK)=="..2"]<-"streak"
+  colnames(STOCK)[colnames(STOCK)=="y"]<-"streak"
   STOCK$diff<-lag(STOCK$close)*STOCK$pCHANGE/100
   STOCK$difflag<-lead(STOCK$diff,1)
   STOCK<-STOCK[1:(nrow(STOCK)-bit),]
-  STOCK$date<-row.names(STOCK)
   if (id==TRUE){
     STOCK$id<-paste(symbols[j],STOCK$date)
   }
