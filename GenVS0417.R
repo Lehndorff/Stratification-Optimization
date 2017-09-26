@@ -5,13 +5,13 @@ library(devtools)
 library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 # Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
-Data <- read.csv("~/Desktop/SampleFrame_092217.csv", stringsAsFactors = FALSE)
+Data <- read.csv("~/Desktop/SampleFrame_092517.csv", stringsAsFactors = FALSE)
 StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
 print(Enduses)
 KWHEU<-c("CustomElectric","OtherKWH","T8","Motor","LED","OtherLighting","CompressedAirEquip")
-MCFEU<-c("CustomGas","BoilersandBoilerControls","HVAC","OtherGas")
+MCFEU<-c("CustomGas","BoilersandBoilerControls","HVAC","OtherGas","SmartBuildings")
 ID<-"C.Project.ID"
 subsetsx<-function(data=Dataopt, size=StratVar, strata="Work"){
   str1<-data[[size]][data[[strata]]==1]
@@ -48,12 +48,12 @@ FinSamp<-function(InfSamp,Total){
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
 StratVar<-"SumMCF"
-Endusesn<-c(match(MCFEU,Enduses))
+Endusesn<-c(2)
 MaxCert<-0
-ToleranceSet<-1.2
+ToleranceSet<-1.7
 minTolerance<-0
-Critical<-1.284
-Precision<-.2
+Critical<-1.645
+Precision<-.1
 Restrictions<-1
 ###
 
@@ -430,9 +430,9 @@ for (z in 1:1){
 View(Options2)
 
 #Sample Design inputs; Select rows from Options, Tune Critical Value and Precison
-Selection<-c(5,10,14,19)
-Critical<-1.284
-Precision<-.2
+Selection<-c(5,9,14,19,20)
+Critical<-1.645
+Precision<-.1
 ###
 
 for (z in 1:1){
@@ -452,6 +452,7 @@ for (z in 1:1){
   for (x in Selection){
     Measure <- Options2[x,1]
     Dataopt <- Data[EndUseID==Measure ,c(ID,StratVar)]
+    Dataopt<-Dataopt[rev(order(Dataopt[StratVar])),]
     Dataopt$Work <- c(rep(1, times = Options2[x,5]),rep(2, times = Options2[x,6]),rep(3, times = Options2[x,7]),rep(4, times = Options2[x,8]),rep(5, times = Options2[x,9]),rep(6, times = Options2[x,10]))
     StratVect<-c(StratVect,1:Options2[x,2])
     EnduseVect<-c(EnduseVect,rep(Options2[x,1],times=Options2[x,2]))
@@ -494,7 +495,7 @@ for (z in 1:1){
 View(Results)
 
 #Fine Tune/Select Sample Sizes
-Results[,14]<-c(15,11,11,12,11,11,11)
+Results[,14]<-c(26,8,31,18,1)
 
 for (z in 1:1){
   Design[,8]<-0
