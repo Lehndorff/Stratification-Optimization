@@ -20,8 +20,8 @@ for (j in l:length(symbols)){
     loadSymbols(symbols[j])
   }
 }
-DIAST<-stock(STOCK = get("DIA"), Last = 3000)
-SPYST<-stock(STOCK = get("SPY"), Last = 3000)
+DIAST<-stock(STOCK = get("DIA"), Last = 600)
+SPYST<-stock(STOCK = get("SPY"), Last = 600)
 
 comb<-left_join(DIAST,SPYST,by = "date")
 table(comb$UP.x==comb$UP.y)

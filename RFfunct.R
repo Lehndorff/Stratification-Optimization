@@ -64,7 +64,7 @@ for (j in 1:length(symbolsSP)){
   stockcheck<-get(symbolsSP[j])
   colnames(stockcheck)<-c("open","high","low","close","volume","adjusted")
   stockcheck$row<-1:length(stockcheck$open)
-  if (nrow(stockcheck)<507 | stockcheck$volume[length(stockcheck$volume)]<=1|sum(is.na(stockcheck))>0|(length(stockcheck$row)-max(0,stockcheck$row[stockcheck$volume<=1]))<507){
+  if (nrow(stockcheck)<760 | stockcheck$volume[length(stockcheck$volume)]<=1|sum(is.na(stockcheck))>0|(length(stockcheck$row)-max(0,stockcheck$row[stockcheck$volume<=1]))<507){
   symbols2<-symbols2[!(symbols2 %in% symbolsSP[j])]
   }
 }
