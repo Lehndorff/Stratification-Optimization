@@ -5,7 +5,7 @@ library(devtools)
 library(evergreen)
 # Data <- read.csv("~/Desktop/SampleFrame_10172016.csv", stringsAsFactors=FALSE)
 # Data <- read.csv("~/Desktop/SampleFrame_12062016.csv", stringsAsFactors=FALSE)
-Data <- read.csv("~/Desktop/SampleFrame_092517.csv", stringsAsFactors = FALSE)
+Data <- read.csv("~/Desktop/ALTSampleFrame_092617.csv", stringsAsFactors = FALSE)
 StrataMax<-6
 EndUseID<-Data$PrimaryMeasure
 Enduses<-unique(EndUseID)
@@ -48,12 +48,12 @@ FinSamp<-function(InfSamp,Total){
 # Optimization inputs; # of Strata, which End Uses, Sum kWh variation tolerance, intial Critial Value and Percision
 Strata<-5
 StratVar<-"SumMCF"
-Endusesn<-c(2)
+Endusesn<-c(1,3:5)
 MaxCert<-0
-ToleranceSet<-1.7
+ToleranceSet<-1.3
 minTolerance<-0
 Critical<-1.645
-Precision<-.1
+Precision<-.15
 Restrictions<-1
 ###
 
@@ -430,9 +430,9 @@ for (z in 1:1){
 View(Options2)
 
 #Sample Design inputs; Select rows from Options, Tune Critical Value and Precison
-Selection<-c(5,9,14,19,20)
-Critical<-1.645
-Precision<-.1
+Selection<-c(5,9,15,20)
+Critical<-1.282
+Precision<-.2
 ###
 
 for (z in 1:1){
